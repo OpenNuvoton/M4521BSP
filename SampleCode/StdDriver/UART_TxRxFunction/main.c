@@ -144,7 +144,7 @@ void UART_TEST_HANDLE()
     uint8_t u8InChar = 0xFF;
     uint32_t u32IntSts = UART0->INTSTS;
 
-    if(u32IntSts & UART_INTSTS_RDAINT_Msk)
+    if((u32IntSts & UART_INTSTS_RDAINT_Msk) || (u32IntSts & UART_INTSTS_RXTOINT_Msk))
     {
         printf("\nInput:");
 
@@ -208,12 +208,22 @@ void UART_FunctionTest()
         UART0 will print the received char on screen.
     */
 
+    UART_SetTimeoutCnt(UART0, 0x3E); // Set Time-out Count
+
+    /* Set RX FIFO Trigger Level */
+    UART0->FIFO &= ~UART_FIFO_RFITL_Msk;
+    UART0->FIFO |= UART_FIFO_RFITL_4BYTES;
+
     /* Enable UART RDA/THRE/Time-out interrupt */
     UART_EnableInt(UART0, (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
     while(g_bWait);
 
     /* Disable UART RDA/THRE/Time-out interrupt */
     UART_DisableInt(UART0, (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+
+    /* Reset RX FIFO Trigger Level */
+    UART0->FIFO &= ~UART_FIFO_RFITL_Msk;
+
     g_bWait = TRUE;
     printf("\nUART Sample Demo End.\n");
 

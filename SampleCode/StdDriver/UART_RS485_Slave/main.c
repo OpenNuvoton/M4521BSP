@@ -134,7 +134,7 @@ void RS485_9bitModeSlave()
 #endif
 
     /* Enable RDA\RLS\Time-out Interrupt */
-    UART_ENABLE_INT(UART1, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RLSIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+    UART_ENABLE_INT(UART1, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RLSIEN_Msk));
 
     /* Enable UART1 interrupt */
     NVIC_EnableIRQ(UART1_IRQn);
@@ -149,7 +149,7 @@ void RS485_9bitModeSlave()
     }
 
     /* Disable RDA/RLS/RTO interrupt */
-    UART_DISABLE_INT(UART1, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RLSIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+    UART_DISABLE_INT(UART1, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RLSIEN_Msk));
 
     /* Set UART Function */
     UART_Open(UART1, 115200);
