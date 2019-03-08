@@ -163,7 +163,7 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
 #define SYS_GPB_MFPL_PB3MFP_SPI0_MISO0         (2ul << SYS_GPB_MFPL_PB3MFP_Pos)        /*!< GPB_MFPL PB3 setting for SPI0_MISO0*/
 #define SYS_GPB_MFPL_PB3MFP_SPI1_MISO          (3ul << SYS_GPB_MFPL_PB3MFP_Pos)        /*!< GPB_MFPL PB3 setting for SPI1_MISO*/
 #define SYS_GPB_MFPL_PB3MFP_UART1_TXD          (4ul << SYS_GPB_MFPL_PB3MFP_Pos)        /*!< GPB_MFPL PB3 setting for UART1_TXD*/
-#define SYS_GPB_MFPL_PB4MFP_EBI_ALE            (7ul << SYS_GPB_MFPL_PB4MFP_Pos)        /*!< GPB_MFPL PB4 setting for EBI_ALE*/
+#define SYS_GPB_MFPL_PB3MFP_EBI_ALE            (7ul << SYS_GPB_MFPL_PB3MFP_Pos)        /*!< GPB_MFPL PB3 setting for EBI_ALE*/
 #define SYS_GPB_MFPL_PB3MFP_UART3_TXD          (9ul << SYS_GPB_MFPL_PB3MFP_Pos)        /*!< GPB_MFPL PB3 setting for UART3_TXD*/
 #define SYS_GPB_MFPL_PB3MFP_T0_EXT             (11ul << SYS_GPB_MFPL_PB3MFP_Pos)       /*!< GPB_MFPL PB3 setting for T0_EXT*/
 
