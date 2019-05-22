@@ -39,6 +39,7 @@ uint32_t g_u32LbaAddress;
 uint32_t g_u32BytesInStorageBuf;
 
 uint32_t g_u32BulkBuf0, g_u32BulkBuf1;
+uint32_t volatile g_u32OutToggle = 0, g_u32OutSkip = 0;
 
 /* CBW/CSW variables */
 struct CBW g_sCBW;
@@ -129,6 +130,7 @@ void USBD_IRQHandler(void)
             USBD_ENABLE_USB();
             USBD_SwReset();
             DBG_PRINTF("Bus reset\n");
+            g_u32OutToggle = g_u32OutSkip = 0;
         }
         if(u32State & USBD_STATE_SUSPEND)
         {
@@ -241,7 +243,17 @@ void EP2_Handler(void)
 void EP3_Handler(void)
 {
     /* Bulk OUT */
-    g_u8EP3Ready = 1;
+    if (g_u32OutToggle == (USBD->EPSTS & 0xf000))
+    {
+        g_u32OutSkip = 1;
+        USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
+    }
+    else
+    {
+        g_u8EP3Ready = 1;
+        g_u32OutToggle = USBD->EPSTS & 0xf000;
+        g_u32OutSkip = 0;
+    }
 }
 
 
@@ -367,7 +379,7 @@ void MSC_ClassRequest(void)
 
                 USBD_SET_DATA1(EP3);
                 USBD_SET_EP_BUF_ADDR(EP3, g_u32BulkBuf0);
-                USBD_SET_PAYLOAD_LEN(EP3, 31);
+                USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
 
             }
             else
@@ -406,7 +418,7 @@ void MSC_RequestSense(void)
         tmp[0] = 0x70;
     }
     else
-        tmp[1] = 0xf0;
+        tmp[0] = 0xf0;
 
     tmp[2] = g_au8SenseKey[0];
     tmp[7] = 0x0a;
@@ -693,57 +705,60 @@ void MSC_Write(void)
 {
     uint32_t lba, len;
 
-    if(g_u32Length > EP3_MAX_PKT_SIZE)
+    if (g_u32OutSkip == 0)
     {
-        if(USBD_GET_EP_BUF_ADDR(EP3) == g_u32BulkBuf0)
+        if(g_u32Length > EP3_MAX_PKT_SIZE)
         {
-            USBD_SET_EP_BUF_ADDR(EP3, g_u32BulkBuf1);
-            USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
-            USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf0), EP3_MAX_PKT_SIZE);
-        }
-        else
-        {
-            USBD_SET_EP_BUF_ADDR(EP3, g_u32BulkBuf0);
-            USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
-            USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1), EP3_MAX_PKT_SIZE);
-        }
-
-        g_u32Address += EP3_MAX_PKT_SIZE;
-        g_u32Length -= EP3_MAX_PKT_SIZE;
-
-        /* Buffer full. Writer it to storage first. */
-        if(g_u32Address >= (STORAGE_DATA_BUF + STORAGE_BUFFER_SIZE))
-        {
-            DataFlashWrite(g_u32DataFlashStartAddr, STORAGE_BUFFER_SIZE, (uint32_t)STORAGE_DATA_BUF);
-
-            g_u32Address = STORAGE_DATA_BUF;
-            g_u32DataFlashStartAddr += STORAGE_BUFFER_SIZE;
-        }
-    }
-    else
-    {
-        if(USBD_GET_EP_BUF_ADDR(EP3) == g_u32BulkBuf0)
-            USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf0), g_u32Length);
-        else
-            USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1), g_u32Length);
-        g_u32Address += g_u32Length;
-        g_u32Length = 0;
-
-
-        if((g_sCBW.u8OPCode == UFI_WRITE_10) || (g_sCBW.u8OPCode == UFI_WRITE_12))
-        {
-            lba = get_be32(&g_sCBW.au8Data[0]);
-            len = g_sCBW.dCBWDataTransferLength;
-
-            len = lba * UDC_SECTOR_SIZE + g_sCBW.dCBWDataTransferLength - g_u32DataFlashStartAddr;
-            if(len)
+            if(USBD_GET_EP_BUF_ADDR(EP3) == g_u32BulkBuf0)
             {
-                DataFlashWrite(g_u32DataFlashStartAddr, len, (uint32_t)STORAGE_DATA_BUF);
+                USBD_SET_EP_BUF_ADDR(EP3, g_u32BulkBuf1);
+                USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
+                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf0), EP3_MAX_PKT_SIZE);
+            }
+            else
+            {
+                USBD_SET_EP_BUF_ADDR(EP3, g_u32BulkBuf0);
+                USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
+                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1), EP3_MAX_PKT_SIZE);
+            }
+
+            g_u32Address += EP3_MAX_PKT_SIZE;
+            g_u32Length -= EP3_MAX_PKT_SIZE;
+
+            /* Buffer full. Writer it to storage first. */
+            if(g_u32Address >= (STORAGE_DATA_BUF + STORAGE_BUFFER_SIZE))
+            {
+                DataFlashWrite(g_u32DataFlashStartAddr, STORAGE_BUFFER_SIZE, (uint32_t)STORAGE_DATA_BUF);
+
+                g_u32Address = STORAGE_DATA_BUF;
+                g_u32DataFlashStartAddr += STORAGE_BUFFER_SIZE;
             }
         }
+        else
+        {
+            if(USBD_GET_EP_BUF_ADDR(EP3) == g_u32BulkBuf0)
+                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf0), g_u32Length);
+            else
+                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1), g_u32Length);
+            g_u32Address += g_u32Length;
+            g_u32Length = 0;
 
-        g_u8BulkState = BULK_IN;
-        MSC_AckCmd();
+
+            if((g_sCBW.u8OPCode == UFI_WRITE_10) || (g_sCBW.u8OPCode == UFI_WRITE_12))
+            {
+                lba = get_be32(&g_sCBW.au8Data[0]);
+                len = g_sCBW.dCBWDataTransferLength;
+
+                len = lba * UDC_SECTOR_SIZE + g_sCBW.dCBWDataTransferLength - g_u32DataFlashStartAddr;
+                if(len)
+                {
+                    DataFlashWrite(g_u32DataFlashStartAddr, len, (uint32_t)STORAGE_DATA_BUF);
+                }
+            }
+
+            g_u8BulkState = BULK_IN;
+            MSC_AckCmd();
+        }
     }
 }
 
