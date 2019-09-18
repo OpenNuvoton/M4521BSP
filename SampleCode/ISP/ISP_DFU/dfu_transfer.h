@@ -11,7 +11,7 @@
 
 /* Define the vendor id and product id */
 #define USBD_VID                       0x0416
-#define USBD_PID                       0x6666
+#define USBD_PID                       0xBDF0
 
 
 /* Define EP maximum packet size */
@@ -151,8 +151,6 @@ typedef struct
 /*-------------------------------------------------------------*/
 void DFU_Init(void);
 void DFU_ClassRequest(void);
-//void HID_SetInReport(void);
-//void HID_GetOutReport(uint8_t *pu8EpBuf, uint32_t u32Size);
 
 #endif  /* __USBD_DFU_H_ */
 
