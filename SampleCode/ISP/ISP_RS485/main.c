@@ -15,7 +15,7 @@
 #define HCLK_DIV                        1
 
 #define nRTSPin                 (PE11)
-#define REVEIVE_MODE            (0)
+#define RECEIVE_MODE            (0)
 #define TRANSMIT_MODE           (1)
 
 #define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HIRC
@@ -55,8 +55,8 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    PE->MODE = (PE->MODE & ~(0x3ul << (12 << 1))) | (GPIO_MODE_OUTPUT << (12 << 1));
-    nRTSPin = REVEIVE_MODE;
+    PE->MODE = (PE->MODE & ~GPIO_MODE_MODE11_Msk) | (GPIO_MODE_OUTPUT << GPIO_MODE_MODE11_Pos);
+    nRTSPin = RECEIVE_MODE;
     SYS->GPE_MFPH = (SYS->GPE_MFPH & ~(SYS_GPE_MFPH_PE8MFP_Msk)) | SYS_GPE_MFPH_PE8MFP_UART1_TXD;
     SYS->GPE_MFPH = (SYS->GPE_MFPH & ~(SYS_GPE_MFPH_PE9MFP_Msk)) | SYS_GPE_MFPH_PE9MFP_UART1_RXD;
 }
@@ -118,7 +118,7 @@ _ISP:
 
             while ((UART1->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0);
 
-            nRTSPin = REVEIVE_MODE;
+            nRTSPin = RECEIVE_MODE;
             NVIC_EnableIRQ(UART1_IRQn);
         }
     }
