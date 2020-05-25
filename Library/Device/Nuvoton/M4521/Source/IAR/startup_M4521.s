@@ -6,6 +6,7 @@
 ; * @brief    CMSIS Cortex-M4 Core Device Startup File for NUC452E
 ; *
 ; * @note
+; * SPDX-License-Identifier: Apache-2.0
 ; * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
 ;*****************************************************************************/
 

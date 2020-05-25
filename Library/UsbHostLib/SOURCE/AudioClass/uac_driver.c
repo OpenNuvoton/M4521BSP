@@ -6,6 +6,7 @@
  * @brief    M4521 MCU USB Host Audio Class driver
  *
  * @note     Support mono and stero audio input and output.
+ * SPDX-License-Identifier: Apache-2.0
  * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
