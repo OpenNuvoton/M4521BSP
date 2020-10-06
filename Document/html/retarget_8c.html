@@ -20,7 +20,7 @@
   <td id="projectlogo"><img alt="Logo" src="m4.jpg"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">M4521 BSP
-   &#160;<span id="projectnumber">V3.00.001</span>
+   &#160;<span id="projectnumber">V3.00.002</span>
    </div>
    <div id="projectbrief">The Board Support Package for M4521 Series</div>
   </td>
@@ -140,7 +140,7 @@ Variables</h2></td></tr>
 <dl class="section version"><dt>Version</dt><dd>V3.00 </dd></dl>
 <dl class="section rcs"><dt>Revision</dt><dd>14 </dd></dl>
 <dl class="section rcs"><dt>Date</dt><dd>15/11/02 9:02a </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved. <pre class="fragment"></pre> </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>SPDX-License-Identifier: Apache-2.0 Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved. <pre class="fragment"></pre> </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 </div><h2 class="groupheader">Enumeration Type Documentation</h2>
@@ -166,7 +166,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a06fc87d81c62e9abb8790b6e5713c55bafd586543cfec6b0f210fe63e60296dcd"></a>psr&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00037">37</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00038">38</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -197,7 +197,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>None</dd></dl>
 <p>Check if message finished (FIFO empty of debug port) </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00613">613</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00614">614</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -228,7 +228,7 @@ Variables</h2></td></tr>
 <p>Checks if the error indicator associated with stream is set, returning a value different from zero if it is. This indicator is generally set by a previous operation on the stream that failed.</p>
 <dl class="section note"><dt>Note</dt><dd>The above descriptions are copied from <a href="http://www.cplusplus.com/reference/clibrary/cstdio/ferror/">http://www.cplusplus.com/reference/clibrary/cstdio/ferror/</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00705">705</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00706">706</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -258,7 +258,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>The character read from UART debug port or semihosting</dd></dl>
 <p>For get message from debug port or semihosting. </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00685">685</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00686">686</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -302,7 +302,7 @@ Variables</h2></td></tr>
  by the internal position indicator, which is then advanced one character.</p>
 <dl class="section note"><dt>Note</dt><dd>The above descriptions are copied from <a href="http://www.cplusplus.com/reference/clibrary/cstdio/fputc/">http://www.cplusplus.com/reference/clibrary/cstdio/fputc/</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00638">638</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00639">639</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -332,7 +332,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>Get value from UART debug port or semihost</dd></dl>
 <p>Wait UART debug port or semihost to input a char. </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00537">537</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00538">538</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -362,7 +362,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>None</dd></dl>
 <p>Replace while(1) at the end of this function with chip reset if WDT is not enabled for end product </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00063">63</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00064">64</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -392,7 +392,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>None</dd></dl>
 <p>The function extracts the location of stack frame and passes it to Hard_Fault_Handler function as a pointer </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00397">397</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00398">398</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -428,7 +428,7 @@ Variables</h2></td></tr>
 </dl>
 <p>Check if message finished (FIFO empty of debug port) </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00598">598</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00599">599</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -464,7 +464,7 @@ Variables</h2></td></tr>
 </dl>
 <p>Check UART RSR RX EMPTY or not to determine if any char input from UART </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00583">583</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00584">584</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -494,7 +494,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>Send value from UART debug port or semihost</dd></dl>
 <p>Send a target char to UART debug port or semihost. </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00505">505</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00506">506</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -524,7 +524,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>Send value from UART debug port</dd></dl>
 <p>Send a target char to UART debug port . </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00428">428</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00429">429</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -562,7 +562,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>None</dd></dl>
 <p>This function is implement to print r0, r1, r2, r3, r12, lr, pc, psr </p>
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00045">45</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00046">46</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -579,7 +579,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00035">35</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00036">36</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
@@ -595,14 +595,14 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00034">34</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="retarget_8c_source.html#l00035">35</a> of file <a class="el" href="retarget_8c_source.html">retarget.c</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Nov 6 2019 09:13:59 for M4521 BSP by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Oct 6 2020 13:44:43 for M4521 BSP by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.15
 </small></address>
