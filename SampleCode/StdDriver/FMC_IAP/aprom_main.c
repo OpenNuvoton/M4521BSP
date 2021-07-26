@@ -16,7 +16,7 @@
 
 typedef void (FUNC_PTR)(void);
 
-extern uint32_t  loaderImage1Base, loaderImage1Limit;
+extern uint32_t  loaderImage1Base;
 
 
 void SYS_Init(void)
