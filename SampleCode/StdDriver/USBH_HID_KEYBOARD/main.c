@@ -6,7 +6,8 @@
  * @brief    This sample shows how to use USB Host driver to handle HID keyboard devices.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include <stdio.h>
 #include <string.h>
@@ -232,5 +233,4 @@ int32_t main(void)
         }
     }
 }
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

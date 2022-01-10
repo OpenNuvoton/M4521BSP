@@ -5,7 +5,8 @@
  * $Date: 15/09/02 10:03a $
  * @brief    Show how to wake up system from Power-down mode by GPIO interrupt.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -174,5 +175,4 @@ int main(void)
     }
 
 }
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

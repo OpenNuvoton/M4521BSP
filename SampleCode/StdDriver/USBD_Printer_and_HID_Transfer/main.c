@@ -5,7 +5,8 @@
  *           Transfer data between USB device and PC through USB HID interface.
  *           A windows tool is also included in this sample code to connect with a USB device.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -155,8 +156,4 @@ int32_t main(void)
         PB->DOUT ^= 0x40; // PB.6
     }
 }
-
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

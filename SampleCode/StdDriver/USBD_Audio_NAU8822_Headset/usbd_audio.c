@@ -3,7 +3,8 @@
  * @brief    NuMicro series USBD audio sample file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 /*!<Includes */
@@ -1419,6 +1420,4 @@ void SamplingControl(void)
         printf("Record Freq. %5dHz (%02d) - Src %5dHz to Dest %5dHz\n\n", g_usbd_RecSampleRate, g_resample_rec_s_idx, srt[g_resample_rec_s_idx].s, srt[g_resample_rec_s_idx].d);
     }
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

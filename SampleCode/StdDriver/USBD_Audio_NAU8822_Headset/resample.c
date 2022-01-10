@@ -4,7 +4,8 @@
  * @brief
  *           Demonstrate how to implement a USB hid class device.
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -210,3 +211,4 @@ int Resamples(RESAMPLE_MODE_T mode, short *x, int ch_num, int samples, short *y,
     return i;
 }
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

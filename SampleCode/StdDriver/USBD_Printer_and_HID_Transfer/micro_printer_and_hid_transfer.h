@@ -3,7 +3,8 @@
  * @brief    M4521 USB micro printer and HID transfer header file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_PRINTER_H__
 #define __USBD_PRINTER_H__

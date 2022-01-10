@@ -3,7 +3,8 @@
  * @brief    M4521 USBD VCOM sample file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 /*!<Includes */
@@ -374,9 +375,4 @@ void VCOM_LineCoding(uint8_t port)
         UART0->LINE = u32Reg;
     }
 }
-
-
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

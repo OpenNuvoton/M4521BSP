@@ -7,8 +7,9 @@
  *           Show how to implement a USB Host with a file system to read/write a file on USB Mass Storage.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
-*****************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include "M4521.h"
@@ -263,6 +264,4 @@ int32_t main(void)
         }
     }
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

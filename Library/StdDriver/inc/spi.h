@@ -7,7 +7,7 @@
  *
  * @note
  * SPDX-License-Identifier: Apache-2.0
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __SPI_H__
 #define __SPI_H__

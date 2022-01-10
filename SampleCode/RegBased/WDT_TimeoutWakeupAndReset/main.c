@@ -7,7 +7,8 @@
  *           Implement WDT time-out interrupt event to wake up system and generate time-out reset system event while WDT time-out reset delay period expired.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -212,5 +213,4 @@ int main(void)
         printf("System has been waken up done. WDT interrupt counts: %d.\n\n", g_u32WDTINTCounts);
     }
 }
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

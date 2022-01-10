@@ -3,8 +3,8 @@
  * @brief    M4521 Data Flash Access API
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 
@@ -138,3 +138,4 @@ void DataFlashWrite(uint32_t addr, uint32_t size, uint32_t buffer)
     }
 }
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

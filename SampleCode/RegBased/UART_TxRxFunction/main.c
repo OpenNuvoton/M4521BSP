@@ -7,8 +7,8 @@
  *           Transmit and receive data from PC terminal through RS232 interface.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include "stdio.h"
 #include "M4521.h"
@@ -224,7 +224,4 @@ void UART_FunctionTest()
     printf("\nUART Sample Demo End.\n");
 
 }
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

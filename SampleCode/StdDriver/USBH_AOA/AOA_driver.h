@@ -5,7 +5,8 @@
  * $Date: 16/04/11 11:20a $
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBH_AOA_H_
 #define __USBH_AOA_H_

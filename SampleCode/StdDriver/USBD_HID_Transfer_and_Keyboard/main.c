@@ -6,7 +6,8 @@
  *           A windows tool is also included in this sample code to connect with USB device.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -164,8 +165,5 @@ int32_t main(void)
         HID_UpdateKbData();
     }
 }
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/
 

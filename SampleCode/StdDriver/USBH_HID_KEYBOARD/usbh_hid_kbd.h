@@ -6,7 +6,8 @@
  * $Date: 16/08/30 11:47a $
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_KBD_H__
 #define __USBD_KBD_H__

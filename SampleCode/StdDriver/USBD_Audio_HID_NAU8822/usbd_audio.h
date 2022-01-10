@@ -5,7 +5,8 @@
  * @date     22, December, 2013
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_UAC_H__
 #define __USBD_UAC_H__

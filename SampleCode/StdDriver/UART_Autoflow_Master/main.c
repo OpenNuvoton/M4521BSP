@@ -7,8 +7,8 @@
  *           Transmit and receive data with auto flow control.
  *           This sample code needs to work with UART_Autoflow_Slave.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -185,3 +185,4 @@ void AutoFlow_FunctionTxTest()
     printf("\n Transmit Done\n");
 
 }
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

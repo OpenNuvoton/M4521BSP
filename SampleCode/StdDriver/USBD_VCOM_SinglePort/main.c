@@ -4,7 +4,8 @@
  *           Implement a USB virtual COM port device.
  *            It supports one virtual COM port.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -335,7 +336,4 @@ int32_t main(void)
     }
 }
 
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

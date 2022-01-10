@@ -4,7 +4,8 @@
  * @brief
  *           Demonstrate how to implement a USB hid class device.
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -156,3 +157,5 @@ void HID_UpdateHidData(void)
     }
 }
 #endif
+
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

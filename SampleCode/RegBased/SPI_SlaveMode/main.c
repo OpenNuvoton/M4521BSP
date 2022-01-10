@@ -7,8 +7,8 @@
  *           Configure SPI0 as Slave mode and demonstrate how to communicate with an off-chip SPI Master device.
  *           This sample code needs to work with SPI_MasterMode sample code.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -160,7 +160,4 @@ void SPI_Init(void)
     /* Set IP clock divider. SPI peripheral clock rate = f_PCLK0 */
     SPI0->CLKDIV = 0;
 }
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

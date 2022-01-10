@@ -7,7 +7,7 @@
  *
  * @note
  * SPDX-License-Identifier: Apache-2.0
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #include "M4521.h"
 
@@ -610,3 +610,4 @@ void I2C_SMBusClockLoTimeout(I2C_T *i2c, uint32_t ms, uint32_t u32Pclk)
 
 /*@}*/ /* end of group Standard_Driver */
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

@@ -3,7 +3,8 @@
  * @brief    M4521 USB HID transfer header file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_HID_H__
 #define __USBD_HID_H__
@@ -74,4 +75,4 @@ void HID_GetOutReport(uint8_t *pu8EpBuf, uint32_t u32Size);
 
 #endif  /* __USBD_HID_H_ */
 
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

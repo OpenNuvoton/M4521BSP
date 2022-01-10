@@ -3,7 +3,8 @@
  * @brief    M4521 USBD micro printer sample file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 #include  "M4521.h"
@@ -235,3 +236,4 @@ void PTR_Data_Receive(void)
     /* trigger next OUT data */
     USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
 }
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

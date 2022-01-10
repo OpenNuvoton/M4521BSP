@@ -3,7 +3,8 @@
  * @brief    M4521 USB HID transfer and MSC sample file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 /*!<Includes */
@@ -1690,3 +1691,4 @@ void MSC_SetConfig(void)
 
 }
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

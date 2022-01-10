@@ -5,7 +5,8 @@
  * $Date: 15/09/02 10:04a $
  * @brief    Configure EBI interface to access BS616LV4017 (SRAM) on EBI interface.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -301,5 +302,4 @@ int32_t AccessEBIWithPDMA(void)
     PDMA_Close();
     return 0;
 }
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

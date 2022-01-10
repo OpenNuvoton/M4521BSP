@@ -4,7 +4,8 @@
  * @brief
  *           Define the device setting.
  *
- * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 /* Just select one */
 #define MEDIAKEY    0

@@ -7,7 +7,7 @@
  *
  * @note
  * SPDX-License-Identifier: Apache-2.0
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M4521.h"
 
@@ -175,3 +175,5 @@ void EBI_SetBusTiming(uint32_t u32Bank, uint32_t u32TimingConfig, uint32_t u32Mc
 /*@}*/ /* end of group EBI_Driver */
 
 /*@}*/ /* end of group Standard_Driver */
+
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

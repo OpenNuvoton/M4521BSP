@@ -7,7 +7,8 @@
  *           Shows how to use USB Host Audio Class driver to control an UAC device.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include <stdio.h>
 #include <string.h>
@@ -536,6 +537,4 @@ err_out:
     printf("\nFailed!\n");
     while(1);
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

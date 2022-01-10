@@ -8,7 +8,8 @@
  *           This sample code needs to connect SPI0_MISO0 pin and SPI0_MOSI0 pin together.
  *           It will compare the received data with transmitted data.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -176,6 +177,4 @@ void SPI_Init(void)
     SPI0->CTL = SPI_MASTER | SPI_CTL_TXNEG_Msk | SPI_CTL_SPIEN_Msk;
 
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

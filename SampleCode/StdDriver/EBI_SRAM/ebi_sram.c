@@ -6,7 +6,8 @@
  * @brief    EBI sram test source file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -424,5 +425,4 @@ void SRAM_BS616LV4017(uint32_t u32MaxSize)
         u32DataIdx++;
     }
 }
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

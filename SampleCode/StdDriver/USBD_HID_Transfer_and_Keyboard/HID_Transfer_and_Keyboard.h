@@ -3,7 +3,8 @@
  * @brief    M4521 USB composite device header file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_HID_H__
 #define __USBD_HID_H__
@@ -81,4 +82,4 @@ void HID_UpdateKbData(void);
 
 #endif  /* __USBD_HID_H_ */
 
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

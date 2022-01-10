@@ -7,8 +7,8 @@
  *           Show how to use auto baud rate detection function.
  *           This sample code needs to work with UART_AutoBaudRate_Slave.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -212,3 +212,4 @@ void AutoBaudRate_TxTest()
     while(u32Item != 27);
 
 }
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

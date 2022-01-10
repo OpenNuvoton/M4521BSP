@@ -5,7 +5,8 @@
  *           NAU8822 is used in this sample code to play the audio data from Host.
  *           It also supports to record data from NAU8822 to Host.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -241,6 +242,4 @@ int32_t main(void)
 
     }
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

@@ -7,8 +7,8 @@
  *           Configure SPI0 as Master mode and demonstrate how to communicate with an off-chip SPI Slave device.
  *          Needs to work with SPI_SlaveMode sample code.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -179,7 +179,4 @@ void SPI0_IRQHandler(void)
             g_au32DestinationData[g_u32RxDataCount++] = SPI_READ_RX(SPI0);
     }
 }
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

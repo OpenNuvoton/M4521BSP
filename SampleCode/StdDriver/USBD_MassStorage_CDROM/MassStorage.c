@@ -3,7 +3,8 @@
  * @brief    M4521 USBD mass-storage sample file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 /*!<Includes */
@@ -1662,5 +1663,4 @@ void MSC_WriteMedia(uint32_t addr, uint32_t size, uint8_t *buffer)
 {
 }
 
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

@@ -7,8 +7,8 @@
  *           Show how a Master uses I2C address 0x0 to write data to Slave.
  *           This sample code needs to work with I2C_GCMode_Slave.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -255,6 +255,4 @@ int32_t main(void)
 
     while(1);
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

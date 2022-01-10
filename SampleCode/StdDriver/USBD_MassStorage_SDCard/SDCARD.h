@@ -4,8 +4,9 @@
  * @brief    M4521 series SD Card driver header file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
-*****************************************************************************/
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
+ ****************************************************************************/
 #ifndef __SDCARD_H__
 #define __SDCARD_H__
 
@@ -168,4 +169,4 @@ void SpiWrite(uint32_t addr, uint32_t size, uint8_t *buffer);
 
 #endif
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

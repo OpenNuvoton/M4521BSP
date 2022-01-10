@@ -7,7 +7,7 @@
  *
  * @note
  * SPDX-License-Identifier: Apache-2.0
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M4521.h"
 
@@ -256,3 +256,4 @@ uint32_t TIMER_GetModuleClock(TIMER_T *timer)
 
 /*@}*/ /* end of group Standard_Driver */
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

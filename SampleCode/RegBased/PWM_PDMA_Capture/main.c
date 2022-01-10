@@ -5,8 +5,8 @@
  * $Date: 15/09/02 10:03a $
  * @brief    Capture the PWM1 Channel 0 waveform by PWM1 Channel 2, and use PDMA to transfer captured data.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -392,3 +392,4 @@ int32_t main(void)
         PDMA->CHCTL = 0;
     }
 }
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

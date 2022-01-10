@@ -6,7 +6,8 @@
  * @brief    M4521 MCU USB Host HID keyboard driver
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include <stdio.h>
@@ -185,6 +186,4 @@ int  kbd_parse_report(HID_DEV_T *hdev, uint8_t *buf, int len)
 
     return 0;
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

@@ -3,7 +3,8 @@
  * @brief    M4521 USB mass storage header file
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_MASS_H__
 #define __USBD_MASS_H__
@@ -151,4 +152,4 @@ void EP3_Handler(void);
 
 #endif  /* __USBD_MASS_H_ */
 
-/*** (C) COPYRIGHT 2019 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

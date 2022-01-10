@@ -7,8 +7,8 @@
  *           Change system clock to different PLL frequency and output system clock from CLKO pin.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include "stdio.h"
 #include "M4521.h"
@@ -289,4 +289,4 @@ int32_t main(void)
     SYS_ResetCPU();
 
 }
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

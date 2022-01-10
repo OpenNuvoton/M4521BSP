@@ -5,7 +5,8 @@
  *           The mouse cursor will move automatically when this mouse device connecting to PC by USB.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -146,8 +147,4 @@ int32_t main(void)
         HID_UpdateMouseData();
     }
 }
-
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

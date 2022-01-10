@@ -3,7 +3,8 @@
  * @brief    M4521 USBD micro printer and HID transfer sample file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include <string.h>
@@ -611,3 +612,4 @@ void HID_SetInReport(void)
     gCmd.u8Cmd        = u8Cmd;
     gCmd.u32Signature = u32PageCnt;
 }
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

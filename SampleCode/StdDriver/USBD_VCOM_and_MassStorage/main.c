@@ -4,7 +4,8 @@
  *           Implement a USB composite device.
  *           It supports one virtual COM port and one USB Mass-Storage device.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -371,8 +372,4 @@ int32_t main(void)
         MSC_ProcessCmd();
     }
 }
-
-
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

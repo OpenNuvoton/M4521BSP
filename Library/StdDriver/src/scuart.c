@@ -7,7 +7,7 @@
  *
  * @note
  * SPDX-License-Identifier: Apache-2.0
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M4521.h"
 
@@ -232,3 +232,4 @@ void SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 
 /*@}*/ /* end of group Standard_Driver */
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

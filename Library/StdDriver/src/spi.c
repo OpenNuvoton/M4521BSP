@@ -7,7 +7,7 @@
  *
  * @note
  * SPDX-License-Identifier: Apache-2.0
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M4521.h"
 /** @addtogroup Standard_Driver Standard Driver
@@ -1038,3 +1038,4 @@ void I2S_SetFIFO(SPI_T *i2s, uint32_t u32TxThreshold, uint32_t u32RxThreshold)
 
 /*@}*/ /* end of group Standard_Driver */
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

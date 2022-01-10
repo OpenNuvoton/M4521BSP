@@ -6,7 +6,8 @@
  * @brief    M4521 series MCU USB Host AOA(Android Open Accessory) driver.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 #include <stdio.h>
@@ -356,7 +357,5 @@ void AOA_Init(AOA_READ_FUN *func)
     g_aoa_dev.func_read = func;
     USBH_RegisterDriver(&aoa_driver);
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/
 

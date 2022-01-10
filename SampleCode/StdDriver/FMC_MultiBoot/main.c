@@ -5,7 +5,8 @@
  * $Date: 15/09/02 10:04a $
  * @brief    Show how to read/program embedded flash by ISP function.
  * @note
- * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -208,5 +209,4 @@ int main()
 
     while (SYS->PDID) __WFI();
 }
-
-/*** (C) COPYRIGHT 2014~2015 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

@@ -3,7 +3,8 @@
  * @brief    M4521 USBD VCOM and HID transfer sample file
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 /*!<Includes */
@@ -730,3 +731,4 @@ void HID_SetInReport(void)
 
 }
 
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

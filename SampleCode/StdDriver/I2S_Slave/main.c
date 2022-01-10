@@ -7,8 +7,8 @@
  *           Configure SPI1 as I2S Slave mode and demonstrate how I2S works in Slave mode.
  *           This sample code needs to work with I2S_Master.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include <string.h>
@@ -159,5 +159,4 @@ void SPI1_IRQHandler()
     I2S_WRITE_TX_FIFO(SPI1, g_u32TxValue);
     g_u32DataCount += 2;
 }
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

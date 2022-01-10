@@ -7,8 +7,8 @@
  *           Use PDMA to implement Ping-Pong buffer by scatter-gather mode(memory to memory).
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -218,3 +218,4 @@ int main(void)
         }
     }
 }
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

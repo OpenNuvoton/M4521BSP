@@ -7,8 +7,8 @@
  *           Show how to wake up MCU from Power-down.
  *           This sample code needs to work with I2C_Wakeup_Slave.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -407,6 +407,4 @@ int32_t main(void)
 
     while(1);
 }
-
-
-
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/

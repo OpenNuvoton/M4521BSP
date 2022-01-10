@@ -5,8 +5,8 @@
  * $Date: 15/09/02 10:04a $
  * @brief    Capture the PWM1 Channel 0 waveform by PWM1 Channel 2.
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "M4521.h"
@@ -333,3 +333,4 @@ int32_t main(void)
         PWM_ClearCaptureIntFlag(PWM1, 2, PWM_CAPTURE_INT_FALLING_LATCH);
     }
 }
+/*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/
