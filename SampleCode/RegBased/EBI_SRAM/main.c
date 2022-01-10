@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include "M4521.h"
 
-#define PLLCON_SETTING      CLK_PLLCTL_72MHz_HXT
+#define PLLCTL_SETTING      CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK           72000000
 
 
@@ -54,8 +54,10 @@ void Configure_EBI_16BIT_Pins(void)
     SYS->GPD_MFPL |= SYS_GPD_MFPL_PD3MFP_EBI_MCLK;
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t   u32Timeout;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -63,7 +65,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
 
     /* Switch HCLK clock source to HIRC */
     CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_HIRC;
@@ -74,12 +79,20 @@ void SYS_Init(void)
     /* Enable HXT */
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
-    /* Enable PLL and Set PLL frequency */
-    CLK->PLLCTL = PLLCON_SETTING;
+    /* Waiting for HXT ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
-    /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    /* Enable PLL and Set PLL frequency */
+    CLK->PLLCTL = PLLCTL_SETTING;
+
+    /* Waiting for PLL ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
 
     /* Switch STCLK source to HCLK/2 and HCLK clock source to PLL */
     CLK->CLKSEL0 = CLK_CLKSEL0_STCLKSEL_HCLK_DIV2 | CLK_CLKSEL0_HCLKSEL_PLL;
@@ -100,6 +113,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PD multi-function pins for UART0 RXD, TXD */
     SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
+    return 0;
 }
 
 void UART0_Init(void)
@@ -121,17 +135,25 @@ void UART0_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+    int32_t  retval;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, peripheral clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     printf("\n\nCPU @ %d Hz\n", SystemCoreClock);
     printf("+------------------------------------+\n");

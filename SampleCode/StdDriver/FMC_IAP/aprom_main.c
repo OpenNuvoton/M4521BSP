@@ -18,6 +18,10 @@ typedef void (FUNC_PTR)(void);
 
 extern uint32_t  loaderImage1Base;
 
+#define ERR_FLASH_READ       -1
+#define ERR_FLASH_WRITE      -2
+#define ERR_FLASH_ERASE      -3
+
 
 void SYS_Init(void)
 {
@@ -49,6 +53,9 @@ void SYS_Init(void)
     /* Select UART module clock source */
     CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UARTSEL_HXT, CLK_CLKDIV0_UART(1));
 
+    /* Update System Core Clock */
+    /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock and CyclesPerUs automatically. */
+    SystemCoreClockUpdate();
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
@@ -57,10 +64,7 @@ void SYS_Init(void)
     /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
-
 }
-
-
 
 void UART_Init()
 {
@@ -69,7 +73,6 @@ void UART_Init()
     /*---------------------------------------------------------------------------------------------------------*/
     UART_Open(UART0, 115200);
 }
-
 
 static int SetIAPBoot(void)
 {
@@ -81,14 +84,19 @@ static int SetIAPBoot(void)
     if(u32CBS & 1)
     {
         /* Modify User Configuration when it is not in IAP mode */
+        if (FMC_ReadConfig(au32Config, 2) != 0)
+            return ERR_FLASH_READ;
 
-        FMC_ReadConfig(au32Config, 2);
         if(au32Config[0] & 0x40)
         {
             FMC_EnableConfigUpdate();
             au32Config[0] &= ~0x40;
-            FMC_Erase(FMC_CONFIG_BASE);
-            FMC_WriteConfig(au32Config, 2);
+
+            if (FMC_Erase(FMC_CONFIG_BASE) != 0)
+                return ERR_FLASH_ERASE;
+
+            if (FMC_WriteConfig(au32Config, 2) != 0)
+                return ERR_FLASH_WRITE;
 
             // Perform chip reset to make new User Config take effect
             SYS_ResetChip();
@@ -107,10 +115,19 @@ static int  LoadImage(uint32_t u32ImageBase, uint32_t u32FlashAddr, uint32_t u32
     pu32Loader = (uint32_t *)u32ImageBase;
     for(i = 0; i < u32ImageSize; i += FMC_FLASH_PAGE_SIZE)
     {
-        FMC_Erase(u32FlashAddr + i);
+        if (FMC_Erase(u32FlashAddr + i) != 0)
+        {
+            printf("FMC_Erase address 0x%x failed!\n", u32FlashAddr + i);
+            return ERR_FLASH_ERASE;
+        }
+
         for(j = 0; j < FMC_FLASH_PAGE_SIZE; j += 4)
         {
-            FMC_Write(u32FlashAddr + i + j, pu32Loader[(i + j) / 4]);
+            if (FMC_Write(u32FlashAddr + i + j, pu32Loader[(i + j) / 4]) != 0)
+            {
+                printf("FMC_Write address 0x%x failed!\n", u32FlashAddr + i + j);
+                return ERR_FLASH_WRITE;
+            }
         }
     }
     printf("OK.\n");
@@ -144,7 +161,7 @@ int main()
     uint8_t     u8Item;
     uint32_t    u32Data;
     char *acBootMode[] = {"LDROM+IAP", "LDROM", "APROM+IAP", "APROM"};
-    uint32_t u32CBS;
+    uint32_t    u32CBS;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -161,11 +178,10 @@ int main()
     printf("|           [APROM code]                 |\n");
     printf("+----------------------------------------+\n");
 
-
     /* Enable FMC ISP function */
     FMC_Open();
 
-    if(SetIAPBoot() < 0)
+    if (SetIAPBoot() != 0)
     {
         printf("Failed to set IAP boot mode!\n");
         goto lexit;
@@ -177,9 +193,13 @@ int main()
     printf("[%s]\n", acBootMode[u32CBS]);
 
     u32Data = FMC_ReadCID();
+    if (g_FMC_i32ErrCode)
+        goto lexit;
     printf("  Company ID ............................ [0x%08x]\n", u32Data);
 
     u32Data = FMC_ReadPID();
+    if (g_FMC_i32ErrCode)
+        goto lexit;
     printf("  Product ID ............................ [0x%08x]\n", u32Data);
 
     /* Read User Configuration */
@@ -219,7 +239,11 @@ int main()
             __set_PRIMASK(1);
 
             /* Set VECMAP to LDROM for booting from LDROM */
-            FMC_SetVectorPageAddr(FMC_LDROM_BASE);
+            if (FMC_SetVectorPageAddr(FMC_LDROM_BASE) != 0)
+            {
+                printf("FMC_SetVectorPageAddr failed!\n");
+                goto lexit;
+            }
 
             /* Software reset to boot to LDROM */
             NVIC_SystemReset();
@@ -232,7 +256,6 @@ int main()
     }
     while(1);
 
-
 lexit:
 
     /* Disable FMC ISP function */
@@ -241,7 +264,10 @@ lexit:
     /* Lock protected registers */
     SYS_LockReg();
 
-    printf("\nFMC Sample Code Completed.\n");
+    if (g_FMC_i32ErrCode != 0)
+        printf("\nFMC has error!\n");
+    else
+        printf("\nFMC Sample Code Completed.\n");
 
     while(1);
 }

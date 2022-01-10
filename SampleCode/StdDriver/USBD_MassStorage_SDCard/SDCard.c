@@ -250,7 +250,8 @@ uint32_t MMC_Command_Exec(uint8_t nCmd, uint32_t nArg, uint8_t *pchar, uint32_t 
             card_response.b[0] = SingleWrite(0xFF);
 
             if (!++loopguard) break;
-        } while ((card_response.b[0] & BUSY_BIT));
+        }
+        while ((card_response.b[0] & BUSY_BIT));
 
         DBG_PRINTF("R1:0x%x, counter:%d\n", card_response.b[0], loopguard);
 
@@ -271,7 +272,8 @@ uint32_t MMC_Command_Exec(uint8_t nCmd, uint32_t nArg, uint8_t *pchar, uint32_t 
             card_response.b[0] =  SingleWrite(0xFF);
 
             if (!++loopguard) break;
-        } while ((card_response.b[0] & BUSY_BIT));
+        }
+        while ((card_response.b[0] & BUSY_BIT));
 
         while ((SingleWrite(0xFF) & 0xFF) == 0x00);
     }
@@ -284,7 +286,8 @@ uint32_t MMC_Command_Exec(uint8_t nCmd, uint32_t nArg, uint8_t *pchar, uint32_t 
             card_response.b[0] = SingleWrite(0xFF);
 
             if (!++loopguard) break;
-        } while ((card_response.b[0] & BUSY_BIT));
+        }
+        while ((card_response.b[0] & BUSY_BIT));
 
         card_response.b[1] = SingleWrite(0xFF);
         DBG_PRINTF("R2:0x%x, counter:%d\n", card_response.i, loopguard);
@@ -306,7 +309,8 @@ uint32_t MMC_Command_Exec(uint8_t nCmd, uint32_t nArg, uint8_t *pchar, uint32_t 
             card_response.b[0] = SingleWrite(0xFF);
 
             if (!++loopguard) break;
-        } while ((card_response.b[0] & BUSY_BIT));
+        }
+        while ((card_response.b[0] & BUSY_BIT));
 
         DBG_PRINTF("R3:0x%x, counter:%d\n", card_response.b[0], loopguard);
 
@@ -336,7 +340,8 @@ uint32_t MMC_Command_Exec(uint8_t nCmd, uint32_t nArg, uint8_t *pchar, uint32_t 
             card_response.b[0] = SingleWrite(0xFF);
 
             if (!++loopguard) break;
-        } while ((card_response.b[0] & BUSY_BIT));
+        }
+        while ((card_response.b[0] & BUSY_BIT));
 
         DBG_PRINTF("R7:0x%x, counter:%d\n", card_response.b[0], loopguard);
 
@@ -360,132 +365,133 @@ uint32_t MMC_Command_Exec(uint8_t nCmd, uint32_t nArg, uint8_t *pchar, uint32_t 
 
     switch (current_command.trans_type)  // This conditional handles all data
     {
-        // operations;  The command entry
-        // determines what type, if any, data
-        // operations need to occur;
-        case RDB:                         // Read data from the MMC;
-            loopguard = 0;
+    // operations;  The command entry
+    // determines what type, if any, data
+    // operations need to occur;
+    case RDB:                         // Read data from the MMC;
+        loopguard = 0;
 
-            while ((SingleWrite(0xFF) & 0xFF) != START_SBR)
-            {
-                if (!++loopguard)
-                {
-                    BACK_FROM_ERROR;
-                }
-
-                SD_Delay(119);
-            }
-
-            counter = 0;                    // Reset byte counter;
-
-            // Read <current_blklen> bytes;
-            if (pchar)
-            {
-                for (counter = 0; counter < current_blklen; counter++)
-                {
-                    SPI_WRITE_TX(g_pSPI, 0xFF);
-
-                    while (SPI_IS_BUSY(g_pSPI));
-
-                    *(pchar + counter) = SPI_READ_RX(g_pSPI);
-                }
-            }
-            else
-            {
-                for (; counter < current_blklen; counter++)
-                {
-                    SPI_WRITE_TX(g_pSPI, 0xFF);
-
-                    while (SPI_IS_BUSY(g_pSPI));
-                }
-            }
-
-            dummy_CRC.b[1] = SingleWrite(0xFF); // After all data is read, read the two
-            dummy_CRC.b[0] = SingleWrite(0xFF); // CRC bytes;  These bytes are not used
-            // in this mode, but the place holders
-            // must be read anyway;
-            break;
-
-        case RD:                         // Read data from the MMC;
-            loopguard = 0;
-
-            while ((SingleWrite(0xFF) & 0xFF) != START_SBR)
-            {
-                if (!++loopguard)
-                {
-                    BACK_FROM_ERROR;
-                }
-            }
-
-            counter = 0;                    // Reset byte counter;
-
-            // Read <current_blklen> bytes;
-            if (pchar)
-            {
-                for (counter = 0; counter < current_blklen; counter++)
-                {
-                    SPI_WRITE_TX(g_pSPI, 0xFF);
-
-                    while (SPI_IS_BUSY(g_pSPI));
-
-                    *(pchar + counter) = SPI_READ_RX(g_pSPI);
-                }
-            }
-            else
-            {
-                for (counter = 0; counter < current_blklen; counter++)
-                {
-                    SPI_WRITE_TX(g_pSPI, 0xFF);
-
-                    while (SPI_IS_BUSY(g_pSPI));
-                }
-            }
-
-            dummy_CRC.b[1] = SingleWrite(0xFF); // After all data is read, read the two
-            dummy_CRC.b[0] = SingleWrite(0xFF); // CRC bytes;  These bytes are not used
-            // in this mode, but the place holders
-            // must be read anyway;
-            break;
-
-        case WR:
-            SingleWrite(0xFF);
-            SingleWrite(START_SBW);
-
-            for (counter = 0; counter < current_blklen; counter++)
-            {
-                SPI_WRITE_TX(g_pSPI, *(pchar + counter));
-                dummy_CRC.i = GenerateCRC(*(pchar + counter), 0x1021, dummy_CRC.i);
-
-                while (SPI_IS_BUSY(g_pSPI));
-            }
-
-            SingleWrite(dummy_CRC.b[1]);
-            SingleWrite(dummy_CRC.b[0]);
-
-            loopguard = 0;
-
-            do                            // Read Data Response from card;
-            {
-                data_resp = SingleWrite(0xFF);
-
-                if (!++loopguard) break;
-            } while ((data_resp & DATA_RESP_MASK) != 0x01);  // When bit 0 of the MMC response
-
-            // is clear, a valid data response
-            // has been received;
-
-            if (!loopguard)
+        while ((SingleWrite(0xFF) & 0xFF) != START_SBR)
+        {
+            if (!++loopguard)
             {
                 BACK_FROM_ERROR;
             }
 
-            while ((SingleWrite(0xFF) & 0xFF) != 0xFF); //Wait for Busy
+            SD_Delay(119);
+        }
 
-            SingleWrite(0xFF);
-            break;
+        counter = 0;                    // Reset byte counter;
 
-        default:
-            break;
+        // Read <current_blklen> bytes;
+        if (pchar)
+        {
+            for (counter = 0; counter < current_blklen; counter++)
+            {
+                SPI_WRITE_TX(g_pSPI, 0xFF);
+
+                while (SPI_IS_BUSY(g_pSPI));
+
+                *(pchar + counter) = SPI_READ_RX(g_pSPI);
+            }
+        }
+        else
+        {
+            for (; counter < current_blklen; counter++)
+            {
+                SPI_WRITE_TX(g_pSPI, 0xFF);
+
+                while (SPI_IS_BUSY(g_pSPI));
+            }
+        }
+
+        dummy_CRC.b[1] = SingleWrite(0xFF); // After all data is read, read the two
+        dummy_CRC.b[0] = SingleWrite(0xFF); // CRC bytes;  These bytes are not used
+        // in this mode, but the place holders
+        // must be read anyway;
+        break;
+
+    case RD:                         // Read data from the MMC;
+        loopguard = 0;
+
+        while ((SingleWrite(0xFF) & 0xFF) != START_SBR)
+        {
+            if (!++loopguard)
+            {
+                BACK_FROM_ERROR;
+            }
+        }
+
+        counter = 0;                    // Reset byte counter;
+
+        // Read <current_blklen> bytes;
+        if (pchar)
+        {
+            for (counter = 0; counter < current_blklen; counter++)
+            {
+                SPI_WRITE_TX(g_pSPI, 0xFF);
+
+                while (SPI_IS_BUSY(g_pSPI));
+
+                *(pchar + counter) = SPI_READ_RX(g_pSPI);
+            }
+        }
+        else
+        {
+            for (counter = 0; counter < current_blklen; counter++)
+            {
+                SPI_WRITE_TX(g_pSPI, 0xFF);
+
+                while (SPI_IS_BUSY(g_pSPI));
+            }
+        }
+
+        dummy_CRC.b[1] = SingleWrite(0xFF); // After all data is read, read the two
+        dummy_CRC.b[0] = SingleWrite(0xFF); // CRC bytes;  These bytes are not used
+        // in this mode, but the place holders
+        // must be read anyway;
+        break;
+
+    case WR:
+        SingleWrite(0xFF);
+        SingleWrite(START_SBW);
+
+        for (counter = 0; counter < current_blklen; counter++)
+        {
+            SPI_WRITE_TX(g_pSPI, *(pchar + counter));
+            dummy_CRC.i = GenerateCRC(*(pchar + counter), 0x1021, dummy_CRC.i);
+
+            while (SPI_IS_BUSY(g_pSPI));
+        }
+
+        SingleWrite(dummy_CRC.b[1]);
+        SingleWrite(dummy_CRC.b[0]);
+
+        loopguard = 0;
+
+        do                            // Read Data Response from card;
+        {
+            data_resp = SingleWrite(0xFF);
+
+            if (!++loopguard) break;
+        }
+        while ((data_resp & DATA_RESP_MASK) != 0x01);    // When bit 0 of the MMC response
+
+        // is clear, a valid data response
+        // has been received;
+
+        if (!loopguard)
+        {
+            BACK_FROM_ERROR;
+        }
+
+        while ((SingleWrite(0xFF) & 0xFF) != 0xFF); //Wait for Busy
+
+        SingleWrite(0xFF);
+        break;
+
+    default:
+        break;
     }
 
     PC4 = 1;//SPI_SET_SS_HIGH(g_pSPI);// CS = 1
@@ -553,7 +559,8 @@ void MMC_FLASH_Init(void)
                 if (!++loopguard) break;
 
                 SD_Delay(0x100);
-            } while (response != 0);
+            }
+            while (response != 0);
 
             if (!loopguard)
                 return;
@@ -578,7 +585,8 @@ void MMC_FLASH_Init(void)
                 if (!++loopguard) break;
 
                 SD_Delay(50);
-            } while (response != 0);
+            }
+            while (response != 0);
 
             if (!loopguard)
                 return;
@@ -596,7 +604,8 @@ void MMC_FLASH_Init(void)
                 if (!++loopguard) break;
 
                 SD_Delay(50);
-            } while (response != 0);
+            }
+            while (response != 0);
 
             if (!loopguard)
                 return;

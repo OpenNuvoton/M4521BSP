@@ -42,12 +42,13 @@ void NOR_MX29LV320T_RESET(uint32_t u32Bank)
 int32_t NOR_MX29LV320T_CheckStatus(uint32_t u32DstAddr, uint16_t u16Data, uint32_t u32TimeoutMs)
 {
     volatile uint16_t u16RData;
-    volatile uint32_t u32DelayLoop = 0;
+    volatile uint32_t u32DelayLoop;
 
     if(u16Data != 0xEEEE)
     {
+        u32DelayLoop = 0;
         /* Check normal write command status */
-        do
+        while (1)
         {
             u16RData = EBI1_READ_DATA16(u32DstAddr) & 0xFF;
 
@@ -72,13 +73,13 @@ int32_t NOR_MX29LV320T_CheckStatus(uint32_t u32DstAddr, uint16_t u16Data, uint32
 
             CLK_SysTickDelay(1000);
         }
-        while(1);
     }
     else
     {
         /* Check erase command status */
         printf("Chip erase ");
 
+        u32DelayLoop = 0;
         do
         {
             u16RData = EBI1_READ_DATA16(u32DstAddr);

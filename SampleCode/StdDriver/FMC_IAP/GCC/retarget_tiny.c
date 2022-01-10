@@ -242,12 +242,15 @@ __asm int32_t HardFault_Handler(void)
                  MOV     r1, LR
                  TST     r0, r1                          //; check LR bit 2
                  BEQ     Stack_Use_MSP                   //; stack use MSP
-                 MRS     R0, PSP ; stack use PSP         //; stack use PSP, read PSP
+                 MRS     R0, PSP ;
+    stack use PSP         //; stack use PSP, read PSP
     B       Get_LR_and_Branch
     Stack_Use_MSP
-    MRS     R0, MSP ; stack use MSP         //; read MSP
+    MRS     R0, MSP ;
+    stack use MSP         //; read MSP
     Get_LR_and_Branch
-    MOV     R1, LR ; LR current value       //; LR current value
+    MOV     R1, LR ;
+    LR current value       //; LR current value
     LDR     R2,=__cpp(Hard_Fault_Handler)   //; branch to Hard_Fault_Handler
                 BX      R2
 

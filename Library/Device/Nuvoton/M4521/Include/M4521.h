@@ -2344,7 +2344,7 @@ typedef struct
     __I  uint32_t DFBA;          /* Offset: 0x14  Data Flash Base Address                                            */
     __IO uint32_t FTCTL;         /* Offset: 0x18  Flash Access Time Control Register                                 */
     __I  uint32_t RESERVE0[9];
-    __I  uint32_t ISPSTS;        /* Offset: 0x40  ISP Status Register                                                */
+    __IO uint32_t ISPSTS;        /* Offset: 0x40  ISP Status Register                                                */
     __I  uint32_t RESERVE1[15];
     __IO uint32_t MPDAT0;        /* Offset: 0x80  ISP Data0 Register                                                 */
     __IO uint32_t MPDAT1;        /* Offset: 0x84  ISP Data1 Register                                                 */

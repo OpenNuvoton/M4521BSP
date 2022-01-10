@@ -14,49 +14,66 @@
 #define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
-    int32_t i;
+    uint32_t   u32Timeout;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
+    /* Enable HIRC clock */
+    CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
-    /* Enable External XTAL (4~24 MHz) */
+    /* Waiting for HIRC clock ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
+
+    /* Switch HCLK clock source to HIRC */
+    CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_HIRC;
+
+    /* Set PLL to Power-down mode and PLLSTB bit in CLK_STATUS register will be cleared by hardware.*/
+    CLK->PLLCTL |= CLK_PLLCTL_PD_Msk;
+
+    /* Enable HXT */
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
+    /* Waiting for HXT ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -2;
+
+    /* Enable PLL and Set PLL frequency */
     CLK->PLLCTL = PLLCTL_SETTING;
 
-    /* Waiting for clock ready */
-    i = 22000000; // For timeout
-    while(i-- > 0)
-    {
-        if((CLK->STATUS & (CLK_STATUS_PLLSTB_Msk | CLK_STATUS_HXTSTB_Msk)) ==
-                (CLK_STATUS_PLLSTB_Msk | CLK_STATUS_HXTSTB_Msk))
-            break;
-    }
+    /* Waiting for PLL ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -3;
 
-    /* Switch HCLK clock source to PLL */
-    CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_PLL;
+    /* Switch STCLK source to HCLK/2 and HCLK clock source to PLL */
+    CLK->CLKSEL0 = CLK_CLKSEL0_STCLKSEL_HCLK_DIV2 | CLK_CLKSEL0_HCLKSEL_PLL;
 
-    /* Enable IP clock */
+    /* Enable peripheral clock */
+    CLK->AHBCLK |= CLK_AHBCLK_EBICKEN_Msk;
     CLK->APBCLK0 = CLK_APBCLK0_UART0CKEN_Msk;
 
-    /* Select IP clock source */
+    /* Peripheral clock source */
     CLK->CLKSEL1 = CLK_CLKSEL1_UARTSEL_PLL;
 
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate PllClock, SystemCoreClock and CycylesPerUs automatically. */
-    //SystemCoreClockUpdate();
-    PllClock        = PLL_CLOCK;            // PLL
-    SystemCoreClock = PLL_CLOCK / 1;        // HCLK
-    CyclesPerUs     = PLL_CLOCK / 1000000;  // For SYS_SysTickDelay()
+    SystemCoreClockUpdate();
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PD multi-function pins for UART0 RXD, TXD */
-    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
-    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
+    SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
+    return 0;
 }
 
 void UART0_Init(void)
@@ -100,14 +117,39 @@ static void PutString(char *str)
     }
 }
 
+static __INLINE int32_t set_vector_page_addr(uint32_t u32PageAddr)
+{
+    uint32_t  tout = FMC_TIMEOUT_WRITE;
+
+    FMC->ISPCMD = FMC_ISPCMD_VECMAP; /* Set ISP Command Code */
+    FMC->ISPADDR = u32PageAddr;       /* The address of specified page which will be map to address 0x0. It must be page alignment. */
+    FMC->ISPTRG = 0x1;               /* Trigger to start ISP procedure */
+#if ISBEN
+    __ISB();
+#endif                         /* To make sure ISP/CPU be Synchronized */
+    while (tout-- > 0)
+    {
+        if (!FMC->ISPTRG)             /* Waiting for ISP Done */
+            return 0;
+    }
+    return -1;
+}
 
 int main()
 {
+    int32_t   retval;
+
     /* Unlock protected register */
     SYS_UnlockReg();
 
-    SYS_Init();
+    retval = SYS_Init();
     UART0_Init();
+
+    if (retval != 0)
+    {
+        PutString("SYS_Init failed!\n");
+        while (1);
+    }
 
     PutString("\n\n");
     PutString("M4521 FMC IAP Sample Code [LDROM code]\n");
@@ -125,7 +167,11 @@ int main()
     __set_PRIMASK(1);
 
     /* Change VECMAP for booting to APROM */
-    FMC_SetVectorPageAddr(FMC_APROM_BASE);
+    if (set_vector_page_addr(FMC_APROM_BASE) != 0)
+    {
+        PutString("FMC_SetVectorPageAddr failed!\n");
+        while (1);
+    }
 
     /* Reset CPU to boot to APROM */
     SYS->IPRST0 |= SYS_IPRST0_CPURST_Msk;

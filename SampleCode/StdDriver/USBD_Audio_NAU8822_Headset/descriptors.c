@@ -54,13 +54,13 @@
          | *bSamFreqType      |              0x02             |       0x03(+1 Frequency)      |
          +--------------------+-------------------------------+-------------------------------+
          | *tSamFreq          |  AUDIO_RATE_48K & 0xFF        |  AUDIO_RATE_48K & 0xFF        |
-         |                    | (AUDIO_RATE_48K >>  8) & 0xFF | (AUDIO_RATE_48K >>  8) & 0xFF | 
+         |                    | (AUDIO_RATE_48K >>  8) & 0xFF | (AUDIO_RATE_48K >>  8) & 0xFF |
          |                    | (AUDIO_RATE_48K >> 16) & 0xFF | (AUDIO_RATE_48K >> 16) & 0xFF |
          |                    |  AUDIO_RATE_32K & 0xFF        |  AUDIO_RATE_32K & 0xFF        |
-         |                    | (AUDIO_RATE_32K >>  8) & 0xFF | (AUDIO_RATE_32K >>  8) & 0xFF | 
+         |                    | (AUDIO_RATE_32K >>  8) & 0xFF | (AUDIO_RATE_32K >>  8) & 0xFF |
          |                    | (AUDIO_RATE_32K >> 16) & 0xFF | (AUDIO_RATE_32K >> 16) & 0xFF |
          |                    |                               |  AUDIO_RATE_16K & 0xFF        |
-         |                    |                               | (AUDIO_RATE_16K >>  8) & 0xFF | 
+         |                    |                               | (AUDIO_RATE_16K >>  8) & 0xFF |
          |                    |                               | (AUDIO_RATE_16K >> 16) & 0xFF |
          +--------------------+-------------------------------+-------------------------------+
 
@@ -150,13 +150,13 @@ uint8_t HID_DeviceReportDescriptor[] __attribute__((aligned(4))) =
     0x81, 0x42,        /* Input(Data, Variable, Absolute, No Wrap, Linear, Preferred State, Null State, Bit Field) */
     0x65, 0x00,        /* Unit(0x0) */
     0x75, 0x01,        /* Report Size(0x1) */
-    0x95, 0x0C,        /* Report Count(0xC) */  
+    0x95, 0x0C,        /* Report Count(0xC) */
     0x25, 0x01,        /* Logical Maximum(0x1) */
     0x45, 0x01,        /* Physical Maximum(0x1) */
     0x05, 0x09,        /* Usage Page(Button) */
     0x19, 0x01,        /* Usage Minimum(0x1) */
     0x29, 0x0C,        /* Usage Maximum(0xC) */
-    0x81, 0x02,        /* Input(Data, Variable, Absolute, No Wrap, Linear, Preferred State, No Null Position, Bit Field) */  
+    0x81, 0x02,        /* Input(Data, Variable, Absolute, No Wrap, Linear, Preferred State, No Null Position, Bit Field) */
     0x06, 0x00, 0xFF,  /* Usage Page(Undefined) */
     0x75, 0x01,        /* Report Size(0x1) */
     0x95, 0x08,        /* Report Count(0x8) */
@@ -236,18 +236,18 @@ uint8_t gu8ConfigDescriptor[] __attribute__((aligned(4))) =
 #else
     0xDD, 0x00,         /* wTotalLength */
 #endif
-                        /*
-                           Descriptor (Feedback) without HID           (0xCD)
-                           Descriptor without HID                      (0xC4)
+    /*
+       Descriptor (Feedback) without HID           (0xCD)
+       Descriptor without HID                      (0xC4)
 
-                           HID Descriptor
-                             Interface Descriptor                      (0x09)
-                             HID Descriptor                            (0x09)
-                             Endpoint Descriptor (IN)                  (0x07)
+       HID Descriptor
+         Interface Descriptor                      (0x09)
+         HID Descriptor                            (0x09)
+         Endpoint Descriptor (IN)                  (0x07)
 
-                           0xCD + (0x09 + 0x09 + 0x07) = 0xE6 (with Feedback Endpoint)
-                           0xC4 + (0x09 + 0x09 + 0x07) = 0xDD
-                        */
+       0xCD + (0x09 + 0x09 + 0x07) = 0xE6 (with Feedback Endpoint)
+       0xC4 + (0x09 + 0x09 + 0x07) = 0xDD
+    */
     0x04,               /* bNumInterfaces - Interface 0, Interface 1 (Microphone), Interface 2 (Speaker), Interface 3 (HID) */
 #else
 #ifdef __FEEDBACK__
@@ -549,7 +549,7 @@ uint8_t gu8ConfigDescriptor[] __attribute__((aligned(4))) =
     0x05,                             /* bDescriptorType */
     ISO_IN_EP_NUM | EP_INPUT,         /* bEndpointAddress */
     0x05,                             /* bmAttributes */
-    (EP2_MAX_PKT_SIZE & 0xFF), 
+    (EP2_MAX_PKT_SIZE & 0xFF),
     ((EP2_MAX_PKT_SIZE >> 8) & 0xFF),  /* wMaxPacketSize*/
     0x01,                             /* bInterval*/
 
@@ -679,15 +679,15 @@ uint8_t gu8ConfigDescriptor[] __attribute__((aligned(4))) =
     HID_REPORT_DESCRIPTOR_SIZE & 0x00FF,
     (HID_REPORT_DESCRIPTOR_SIZE & 0xFF00) >> 8,
 
-    /* Endpoint Descriptor (Interrupt IN Endpoint) */
-    LEN_ENDPOINT,                     /* bLength */
-    DESC_ENDPOINT,                    /* bDescriptorType */
-    (HID_IN_EP_NUM | EP_INPUT),       /* bEndpointAddress */
-    EP_INT,                           /* bmAttributes */
-    /* wMaxPacketSize */
-    EP5_MAX_PKT_SIZE & 0x00FF,
-    (EP5_MAX_PKT_SIZE & 0xFF00) >> 8,
-    10                                /* bInterval */
+                                          /* Endpoint Descriptor (Interrupt IN Endpoint) */
+                                          LEN_ENDPOINT,                     /* bLength */
+                                          DESC_ENDPOINT,                    /* bDescriptorType */
+                                          (HID_IN_EP_NUM | EP_INPUT),       /* bEndpointAddress */
+                                          EP_INT,                           /* bmAttributes */
+                                          /* wMaxPacketSize */
+                                          EP5_MAX_PKT_SIZE & 0x00FF,
+                                          (EP5_MAX_PKT_SIZE & 0xFF00) >> 8,
+                                          10                                /* bInterval */
 #endif
 };
 
@@ -814,7 +814,7 @@ const S_USBD_INFO_T gsInfo =
     gu8DeviceDescriptor,
     gu8ConfigDescriptor,
     gpu8UsbString,
-    gu8UsbHidReport, 
+    gu8UsbHidReport,
     gu32UsbHidReportLen,
     gu32ConfigHidDescIdx
 };

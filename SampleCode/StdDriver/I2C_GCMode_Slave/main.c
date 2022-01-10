@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include "M4521.h"
 
-#define PLLCON_SETTING      SYSCLK_PLLCON_50MHz_XTAL
 #define PLL_CLOCK           50000000
 
 volatile uint32_t slave_buff_addr;

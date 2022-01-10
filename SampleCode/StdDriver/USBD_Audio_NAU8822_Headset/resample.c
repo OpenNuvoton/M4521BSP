@@ -10,7 +10,8 @@
 #include "M4521.h"
 #include "usbd_audio.h"
 
-const SR_T srt[] = {
+const SR_T srt[] =
+{
     {  683,  8000, 96000,  8},    /* resamle factor, source sampling rate, destination sampling rate, source sample count */
     { 1365,  8000, 48000,  8},  // 1
     { 1486,  8000, 44100,  8},  // 2
@@ -51,9 +52,9 @@ const SR_T srt[] = {
 
 int SamplingFactor(uint32_t u32SrceRate, uint32_t u32DestRate)
 {
-    uint32_t i ,n = 0;
+    uint32_t i,n = 0;
 
-    for(i = n; i < sizeof(srt)/sizeof(SR_T);i++)
+    for(i = n; i < sizeof(srt)/sizeof(SR_T); i++)
     {
         if(srt[i].s == u32SrceRate && srt[i].d == u32DestRate)
             return i;
@@ -63,7 +64,7 @@ int SamplingFactor(uint32_t u32SrceRate, uint32_t u32DestRate)
 
 /*
 int Resamples(RESAMPLE_MODE_T mode, short *x, int ch_num, int samples, short *y, int s_idx)
-    
+
     mode    : E_RS_REC_CH0 / E_RS_REC_CH1 / E_RS_PLAY_CH0 / E_RS_PLAY_CH1
     x       : point to input buffer of 16-bit PCM samples
     ch_num  :
@@ -111,7 +112,7 @@ Example:
     Resample 32kHz to 48kHz
     outSamples = Resamples(E_RS_PLAY_CH0, x    , 32,     y, 3);
     outSamples = Resamples(E_RS_PLAY_CH1, x + 1, 32, y + 1, 3);
-*/ 
+*/
 int Resamples(RESAMPLE_MODE_T mode, short *x, int ch_num, int samples, short *y, int s_idx)
 {
     int i;
@@ -128,26 +129,26 @@ int Resamples(RESAMPLE_MODE_T mode, short *x, int ch_num, int samples, short *y,
 
     switch(mode)
     {
-        case E_RS_REC_CH0:
-            px = px_rec_ch0;
-            yt = yt_rec_ch0;
-            xt = xt_rec_ch0;
-            break;
-        case E_RS_REC_CH1:
-            px = px_rec_ch1;
-            yt = yt_rec_ch1;
-            xt = xt_rec_ch1;
-            break;
-        case E_RS_PLAY_CH0:
-            px = px_play_ch0;
-            yt = yt_play_ch0;
-            xt = xt_play_ch0;
-            break;
-        case E_RS_PLAY_CH1:
-            px = px_play_ch1;
-            yt = yt_play_ch1;
-            xt = xt_play_ch1;
-            break;
+    case E_RS_REC_CH0:
+        px = px_rec_ch0;
+        yt = yt_rec_ch0;
+        xt = xt_rec_ch0;
+        break;
+    case E_RS_REC_CH1:
+        px = px_rec_ch1;
+        yt = yt_rec_ch1;
+        xt = xt_rec_ch1;
+        break;
+    case E_RS_PLAY_CH0:
+        px = px_play_ch0;
+        yt = yt_play_ch0;
+        xt = xt_play_ch0;
+        break;
+    case E_RS_PLAY_CH1:
+        px = px_play_ch1;
+        yt = yt_play_ch1;
+        xt = xt_play_ch1;
+        break;
     }
     r = srt[s_idx].r;
     s = srt[s_idx].s;
@@ -170,7 +171,8 @@ int Resamples(RESAMPLE_MODE_T mode, short *x, int ch_num, int samples, short *y,
 
         i++;
         yt += r;
-    } while (yt < (xt + ((samples - 1) << 13)));
+    }
+    while (yt < (xt + ((samples - 1) << 13)));
 
     px = x[(samples - 1) * ch_num];
     xt += (samples << 13);
@@ -183,26 +185,26 @@ int Resamples(RESAMPLE_MODE_T mode, short *x, int ch_num, int samples, short *y,
 
     switch(mode)
     {
-        case E_RS_REC_CH0:
-            px_rec_ch0 = px;
-            yt_rec_ch0 = yt;
-            xt_rec_ch0 = xt;
-            break;
-        case E_RS_REC_CH1:
-            px_rec_ch1 = px;
-            yt_rec_ch1 = yt;
-            xt_rec_ch1 = xt;
-            break;
-        case E_RS_PLAY_CH0:
-            px_play_ch0 = px;
-            yt_play_ch0 = yt;
-            xt_play_ch0 = xt;
-            break;
-        case E_RS_PLAY_CH1:
-            px_play_ch1 = px;
-            yt_play_ch1 = yt;
-            xt_play_ch1 = xt;
-            break;
+    case E_RS_REC_CH0:
+        px_rec_ch0 = px;
+        yt_rec_ch0 = yt;
+        xt_rec_ch0 = xt;
+        break;
+    case E_RS_REC_CH1:
+        px_rec_ch1 = px;
+        yt_rec_ch1 = yt;
+        xt_rec_ch1 = xt;
+        break;
+    case E_RS_PLAY_CH0:
+        px_play_ch0 = px;
+        yt_play_ch0 = yt;
+        xt_play_ch0 = xt;
+        break;
+    case E_RS_PLAY_CH1:
+        px_play_ch1 = px;
+        yt_play_ch1 = yt;
+        xt_play_ch1 = xt;
+        break;
     }
 
     return i;

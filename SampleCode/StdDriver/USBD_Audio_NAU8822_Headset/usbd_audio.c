@@ -26,7 +26,7 @@ volatile uint32_t g_usbd_CodecSampleRate = SAMPLING_RATE;
 volatile uint32_t g_usbd_PlaySampleRate  = PLAY_RATE;
 volatile uint32_t g_usbd_RecSampleRate   = REC_RATE;
 volatile uint32_t g_PrePlaySampleRate  = PLAY_RATE;
-volatile uint32_t g_PreRecSampleRate   = REC_RATE;  
+volatile uint32_t g_PreRecSampleRate   = REC_RATE;
 volatile uint32_t g_PreCodecSampleRate = SAMPLING_RATE;
 
 volatile uint32_t g_play_max_packet_size = (PLAY_RATE * PLAY_CHANNELS * 2 / 1000);
@@ -363,7 +363,7 @@ void EP4_Handler(void)
     uint32_t u32Size;
 
     if (g_u8PlayEn != 0)
-    { 
+    {
 
         /* Get sample size in play buffer */
         u32Size = GetSamplesInBuf();
@@ -431,7 +431,7 @@ void UAC_Init(void)
 {
 #ifdef __FEEDBACK__
     uint8_t *pu8Buf;
-#endif 
+#endif
     /* Init setup packet buffer */
     /* Buffer for setup packet -> [0 ~ 0x7] */
     USBD->STBUFSEG = SETUP_BUF_BASE;
@@ -480,21 +480,21 @@ void UAC_Init(void)
 #endif
 #ifdef __FEEDBACK__
     /* Feedback Endpoint */
-        pu8Buf = (uint8_t *)((uint32_t)USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP4));
+    pu8Buf = (uint8_t *)((uint32_t)USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP4));
 
-        g_u32SampleRate = g_usbd_PlaySampleRate / 1000;
+    g_u32SampleRate = g_usbd_PlaySampleRate / 1000;
 
-        g_play_len_frame = g_usbd_PlaySampleRate / 1000;
+    g_play_len_frame = g_usbd_PlaySampleRate / 1000;
 
-        /* Prepare the data to USB IN buffer */
-        *pu8Buf++ = 0x00;
-        *pu8Buf++ = (g_u32SampleRate & 0x3) << 6;
-        *pu8Buf = (g_u32SampleRate & 0xFC) >> 2;
+    /* Prepare the data to USB IN buffer */
+    *pu8Buf++ = 0x00;
+    *pu8Buf++ = (g_u32SampleRate & 0x3) << 6;
+    *pu8Buf = (g_u32SampleRate & 0xFC) >> 2;
 
-        /* Trigger ISO IN */
-        USBD_SET_DATA1(EP4);
+    /* Trigger ISO IN */
+    USBD_SET_DATA1(EP4);
 
-        USBD_SET_PAYLOAD_LEN(EP4, 3);
+    USBD_SET_PAYLOAD_LEN(EP4, 3);
 
     /* End of Feedback Endpoint */
 #endif
@@ -524,215 +524,215 @@ void UAC_ClassRequest(void)
         /* Device to host */
         switch(buf[1])
         {
-            case UAC_GET_CUR:
+        case UAC_GET_CUR:
+        {
+            if((buf[4] & 0x0F) == ISO_IN_EP_NUM)
             {
-                if((buf[4] & 0x0F) == ISO_IN_EP_NUM)
+                M32(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecSampleRate;
+                /* Status stage */
+                USBD_SET_DATA1(EP0);
+                USBD_SET_PAYLOAD_LEN(EP0, 0);
+                break;
+            }
+            else if((buf[4] & 0x0F) == ISO_OUT_EP_NUM)
+            {
+                M32(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlaySampleRate;
+                /* Status stage */
+                USBD_SET_DATA1(EP0);
+                USBD_SET_PAYLOAD_LEN(EP0, 0);
+                break;
+            }
+            else
+            {
+                switch(buf[3])
                 {
-                    M32(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecSampleRate;
-                    /* Status stage */
+                case MUTE_CONTROL:
+                {
+                    if(REC_FEATURE_UNITID == buf[5])
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecMute;
+                    else if(PLAY_FEATURE_UNITID == buf[5])
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayMute;
+
+                    /* Data stage */
                     USBD_SET_DATA1(EP0);
-                    USBD_SET_PAYLOAD_LEN(EP0, 0);
+                    USBD_SET_PAYLOAD_LEN(EP0, 1);
                     break;
                 }
-                else if((buf[4] & 0x0F) == ISO_OUT_EP_NUM)
+                case VOLUME_CONTROL:
                 {
-                    M32(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlaySampleRate;
-                    /* Status stage */
+                    if(REC_FEATURE_UNITID == buf[5])
+                    {
+                        /* Left or right channel */
+                        if(buf[2] == 1)
+                        {
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecVolumeL;
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecVolumeL >> 8;
+                        }
+                        else
+                        {
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecVolumeR;
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecVolumeR >> 8;
+                        }
+                    }
+                    else if(PLAY_FEATURE_UNITID == buf[5])
+                    {
+                        /* Left or right channel */
+                        if(buf[2] == 1)
+                        {
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayVolumeL;
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayVolumeL >> 8;
+                        }
+                        else
+                        {
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayVolumeR;
+                            M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayVolumeR >> 8;
+                        }
+                    }
+                    /* Data stage */
                     USBD_SET_DATA1(EP0);
-                    USBD_SET_PAYLOAD_LEN(EP0, 0);
+                    USBD_SET_PAYLOAD_LEN(EP0, 2);
                     break;
                 }
-                else
+                default:
                 {
-                    switch(buf[3])
-                    {
-                        case MUTE_CONTROL:
-                        {
-                            if(REC_FEATURE_UNITID == buf[5])
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecMute;
-                            else if(PLAY_FEATURE_UNITID == buf[5])
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayMute;
-
-                            /* Data stage */
-                            USBD_SET_DATA1(EP0);
-                            USBD_SET_PAYLOAD_LEN(EP0, 1);
-                            break;
-                        }
-                        case VOLUME_CONTROL:
-                        {
-                            if(REC_FEATURE_UNITID == buf[5])
-                            {
-                                /* Left or right channel */
-                                if(buf[2] == 1)
-                                {
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecVolumeL;
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecVolumeL >> 8;
-                                }
-                                else
-                                {
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecVolumeR;
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecVolumeR >> 8;
-                                }
-                            }
-                            else if(PLAY_FEATURE_UNITID == buf[5])
-                            {
-                                /* Left or right channel */
-                                if(buf[2] == 1)
-                                {
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayVolumeL;
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayVolumeL >> 8;
-                                }
-                                else
-                                {
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayVolumeR;
-                                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayVolumeR >> 8;
-                                }
-                            }
-                            /* Data stage */
-                            USBD_SET_DATA1(EP0);
-                            USBD_SET_PAYLOAD_LEN(EP0, 2);
-                            break;
-                        }
-                        default:
-                        {
-                            /* Setup error, stall the device */
-                            USBD_SetStall(0);
-                        }
-                    }
-                    /* Trigger next Control Out DATA1 Transaction. */
-                    /* Status stage */
-                    USBD_PrepareCtrlOut(0, 0);
-                    break;
+                    /* Setup error, stall the device */
+                    USBD_SetStall(0);
                 }
+                }
+                /* Trigger next Control Out DATA1 Transaction. */
+                /* Status stage */
+                USBD_PrepareCtrlOut(0, 0);
+                break;
+            }
 
-                case UAC_GET_MIN:
+            case UAC_GET_MIN:
+            {
+                switch(buf[3])
                 {
-                    switch(buf[3])
-                    {
-                        case VOLUME_CONTROL:
-                        {
-                            if(REC_FEATURE_UNITID == buf[5])
-                            {
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecMinVolume;
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecMinVolume >> 8;
-                            }
-                            else if(PLAY_FEATURE_UNITID == buf[5])
-                            {
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayMinVolume;
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayMinVolume >> 8;
-                            }
-                            /* Data stage */
-                            USBD_SET_DATA1(EP0);
-                            USBD_SET_PAYLOAD_LEN(EP0, 2);
-                            break;
-                        }
-                        default:
-                            /* STALL control pipe */
-                            USBD_SetStall(0);
-                    }
-                    /* Trigger next Control Out DATA1 Transaction. */
-                    /* Status stage */
-                    USBD_PrepareCtrlOut(0, 0);
-                    break;
-                }
-
-                case UAC_GET_MAX:
+                case VOLUME_CONTROL:
                 {
-                    switch(buf[3])
+                    if(REC_FEATURE_UNITID == buf[5])
                     {
-                        case VOLUME_CONTROL:
-                        {
-                            if(REC_FEATURE_UNITID == buf[5])
-                            {
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecMaxVolume;
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecMaxVolume >> 8;
-                            }
-                            else if(PLAY_FEATURE_UNITID == buf[5])
-                            {
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayMaxVolume;
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayMaxVolume >> 8;
-                            }
-                            /* Data stage */
-                            USBD_SET_DATA1(EP0);
-                            USBD_SET_PAYLOAD_LEN(EP0, 2);
-                            break;
-                        }
-                        default:
-                            /* STALL control pipe */
-                            USBD_SetStall(0);
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecMinVolume;
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecMinVolume >> 8;
                     }
-                    /* Trigger next Control Out DATA1 Transaction. */
-                    /* Status stage */
-                    USBD_PrepareCtrlOut(0, 0);
+                    else if(PLAY_FEATURE_UNITID == buf[5])
+                    {
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayMinVolume;
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayMinVolume >> 8;
+                    }
+                    /* Data stage */
+                    USBD_SET_DATA1(EP0);
+                    USBD_SET_PAYLOAD_LEN(EP0, 2);
                     break;
                 }
+                default:
+                    /* STALL control pipe */
+                    USBD_SetStall(0);
+                }
+                /* Trigger next Control Out DATA1 Transaction. */
+                /* Status stage */
+                USBD_PrepareCtrlOut(0, 0);
+                break;
+            }
 
-                case UAC_GET_RES:
+            case UAC_GET_MAX:
+            {
+                switch(buf[3])
                 {
-                    switch(buf[3])
+                case VOLUME_CONTROL:
+                {
+                    if(REC_FEATURE_UNITID == buf[5])
                     {
-                        case VOLUME_CONTROL:
-                        {
-                            if(REC_FEATURE_UNITID == buf[5])
-                            {
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecResVolume;
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecResVolume >> 8;
-                            }
-                            else if(PLAY_FEATURE_UNITID == buf[5])
-                            {
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayResVolume;
-                                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayResVolume >> 8;
-                            }
-                            /* Data stage */
-                            USBD_SET_DATA1(EP0);
-                            USBD_SET_PAYLOAD_LEN(EP0, 2);
-                            break;
-                        }
-                        default:
-                            /* STALL control pipe */
-                            USBD_SetStall(0);
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecMaxVolume;
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecMaxVolume >> 8;
                     }
-                    /* Trigger next Control Out DATA1 Transaction. */
-                    /* Status stage */
-                    USBD_PrepareCtrlOut(0, 0);
+                    else if(PLAY_FEATURE_UNITID == buf[5])
+                    {
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayMaxVolume;
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayMaxVolume >> 8;
+                    }
+                    /* Data stage */
+                    USBD_SET_DATA1(EP0);
+                    USBD_SET_PAYLOAD_LEN(EP0, 2);
                     break;
                 }
+                default:
+                    /* STALL control pipe */
+                    USBD_SetStall(0);
+                }
+                /* Trigger next Control Out DATA1 Transaction. */
+                /* Status stage */
+                USBD_PrepareCtrlOut(0, 0);
+                break;
+            }
+
+            case UAC_GET_RES:
+            {
+                switch(buf[3])
+                {
+                case VOLUME_CONTROL:
+                {
+                    if(REC_FEATURE_UNITID == buf[5])
+                    {
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_RecResVolume;
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_RecResVolume >> 8;
+                    }
+                    else if(PLAY_FEATURE_UNITID == buf[5])
+                    {
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = g_usbd_PlayResVolume;
+                        M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0) + 1) = g_usbd_PlayResVolume >> 8;
+                    }
+                    /* Data stage */
+                    USBD_SET_DATA1(EP0);
+                    USBD_SET_PAYLOAD_LEN(EP0, 2);
+                    break;
+                }
+                default:
+                    /* STALL control pipe */
+                    USBD_SetStall(0);
+                }
+                /* Trigger next Control Out DATA1 Transaction. */
+                /* Status stage */
+                USBD_PrepareCtrlOut(0, 0);
+                break;
+            }
 
 #ifdef __HID__
 //                 case GET_REPORT:
 //                 {
 //                     break;
 //                 }
-                case GET_IDLE:
-                {
+            case GET_IDLE:
+            {
 //                    /* Setup error, stall the device */
 //                    USBD_SetStall(0);
 //                    break;
-                    /* Data stage */
-                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = u8Idle;
-                    USBD_SET_DATA1(EP0);
-                    USBD_SET_PAYLOAD_LEN(EP0, 1);
-                    /* Status stage */
-                    USBD_PrepareCtrlOut(0,0);
-                    break;
-                }
-                case GET_PROTOCOL:
-                {
-                    /* Data stage */
-                    M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = u8Protocol;
-                    USBD_SET_DATA1(EP0);
-                    USBD_SET_PAYLOAD_LEN(EP0, 1);
-                    /* Status stage */
-                    USBD_PrepareCtrlOut(0,0);
-                    break;
-                }
-#endif
-                default:
-                {
-                    /* Setup error, stall the device */
-                    USBD_SetStall(0);
-                }
+                /* Data stage */
+                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = u8Idle;
+                USBD_SET_DATA1(EP0);
+                USBD_SET_PAYLOAD_LEN(EP0, 1);
+                /* Status stage */
+                USBD_PrepareCtrlOut(0,0);
+                break;
             }
+            case GET_PROTOCOL:
+            {
+                /* Data stage */
+                M8(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0)) = u8Protocol;
+                USBD_SET_DATA1(EP0);
+                USBD_SET_PAYLOAD_LEN(EP0, 1);
+                /* Status stage */
+                USBD_PrepareCtrlOut(0,0);
+                break;
+            }
+#endif
+            default:
+            {
+                /* Setup error, stall the device */
+                USBD_SetStall(0);
+            }
+        }
         }
     }
     else
@@ -740,110 +740,110 @@ void UAC_ClassRequest(void)
         /* Host to device */
         switch(buf[1])
         {
-            case UAC_SET_CUR:
+        case UAC_SET_CUR:
+        {
+            if((buf[4] & 0x0F) == ISO_IN_EP_NUM)
             {
-                if((buf[4] & 0x0F) == ISO_IN_EP_NUM)
-                {
-                    USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecSampleRate, buf[6]);
-                    /* Status stage */
-                    USBD_SET_DATA1(EP0);
-                    USBD_SET_PAYLOAD_LEN(EP0, 0);
-                    break;
-                }
-                else if((buf[4] & 0x0F) == ISO_OUT_EP_NUM)
-                {                     
-                    USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlaySampleRate, buf[6]);
-                    /* Status stage */
-                    USBD_SET_DATA1(EP0);
-                    USBD_SET_PAYLOAD_LEN(EP0, 0);
-                    break;
-                }
-                else
-                {
-                    switch(buf[3])
-                    {
-                        case MUTE_CONTROL:
-                            if(REC_FEATURE_UNITID == buf[5])
-                                USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecMute, buf[6]);
-                            else if(PLAY_FEATURE_UNITID == buf[5])
-                            {
-                                USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlayMute, buf[6]);
-                            }
-                            /* Status stage */
-                            USBD_SET_DATA1(EP0);
-                            USBD_SET_PAYLOAD_LEN(EP0, 0);
-                            break;
-
-                        case VOLUME_CONTROL:
-                            if(REC_FEATURE_UNITID == buf[5])
-                            {
-                                if(buf[2] == 1)
-                                {
-                                    /* Prepare the buffer for new record volume of left channel */
-                                    USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecVolumeL, buf[6]);
-                                }
-                                else
-                                {
-                                    /* Prepare the buffer for new record volume of right channel */
-                                    USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecVolumeR, buf[6]);
-                                }
-                            }
-                            else if(PLAY_FEATURE_UNITID == buf[5])
-                            {
-                                if(buf[2] == 1)
-                                {
-                                    /* Prepare the buffer for new play volume of left channel */
-                                    USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlayVolumeL, buf[6]);
-                                }
-                                else
-                                {
-                                    /* Prepare the buffer for new play volume of right channel */
-                                    USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlayVolumeR, buf[6]);
-                                }
-                            }
-                            /* Status stage */
-                            USBD_SET_DATA1(EP0);
-                            USBD_SET_PAYLOAD_LEN(EP0, 0);
-                            break;
-
-                        default:
-                            /* STALL control pipe */
-                            USBD_SetStall(0);
-                            break;
-                    }
-                }
-                break;
-            }
-
-#ifdef __HID__
-            case SET_REPORT:
-            {
-                printf("Set Report\n");
-
-                if(buf[6]!= 0)
-                    USBD_PrepareCtrlOut((uint8_t *)&g_u8ReportBuf, buf[6]);
-
-                /* Request Type = Feature */
-                USBD_SET_DATA1(EP0);
-                USBD_SET_PAYLOAD_LEN(EP0, 0);
-                break;
-            }
-            case SET_IDLE:
-            {
+                USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecSampleRate, buf[6]);
                 /* Status stage */
                 USBD_SET_DATA1(EP0);
                 USBD_SET_PAYLOAD_LEN(EP0, 0);
                 break;
             }
-            case SET_PROTOCOL:
-#endif
-
-            default:
+            else if((buf[4] & 0x0F) == ISO_OUT_EP_NUM)
             {
-                /* Setup error, stall the device */
-                USBD_SetStall(0);
+                USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlaySampleRate, buf[6]);
+                /* Status stage */
+                USBD_SET_DATA1(EP0);
+                USBD_SET_PAYLOAD_LEN(EP0, 0);
                 break;
             }
+            else
+            {
+                switch(buf[3])
+                {
+                case MUTE_CONTROL:
+                    if(REC_FEATURE_UNITID == buf[5])
+                        USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecMute, buf[6]);
+                    else if(PLAY_FEATURE_UNITID == buf[5])
+                    {
+                        USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlayMute, buf[6]);
+                    }
+                    /* Status stage */
+                    USBD_SET_DATA1(EP0);
+                    USBD_SET_PAYLOAD_LEN(EP0, 0);
+                    break;
+
+                case VOLUME_CONTROL:
+                    if(REC_FEATURE_UNITID == buf[5])
+                    {
+                        if(buf[2] == 1)
+                        {
+                            /* Prepare the buffer for new record volume of left channel */
+                            USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecVolumeL, buf[6]);
+                        }
+                        else
+                        {
+                            /* Prepare the buffer for new record volume of right channel */
+                            USBD_PrepareCtrlOut((uint8_t *)&g_usbd_RecVolumeR, buf[6]);
+                        }
+                    }
+                    else if(PLAY_FEATURE_UNITID == buf[5])
+                    {
+                        if(buf[2] == 1)
+                        {
+                            /* Prepare the buffer for new play volume of left channel */
+                            USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlayVolumeL, buf[6]);
+                        }
+                        else
+                        {
+                            /* Prepare the buffer for new play volume of right channel */
+                            USBD_PrepareCtrlOut((uint8_t *)&g_usbd_PlayVolumeR, buf[6]);
+                        }
+                    }
+                    /* Status stage */
+                    USBD_SET_DATA1(EP0);
+                    USBD_SET_PAYLOAD_LEN(EP0, 0);
+                    break;
+
+                default:
+                    /* STALL control pipe */
+                    USBD_SetStall(0);
+                    break;
+                }
+            }
+            break;
+        }
+
+#ifdef __HID__
+        case SET_REPORT:
+        {
+            printf("Set Report\n");
+
+            if(buf[6]!= 0)
+                USBD_PrepareCtrlOut((uint8_t *)&g_u8ReportBuf, buf[6]);
+
+            /* Request Type = Feature */
+            USBD_SET_DATA1(EP0);
+            USBD_SET_PAYLOAD_LEN(EP0, 0);
+            break;
+        }
+        case SET_IDLE:
+        {
+            /* Status stage */
+            USBD_SET_DATA1(EP0);
+            USBD_SET_PAYLOAD_LEN(EP0, 0);
+            break;
+        }
+        case SET_PROTOCOL:
+#endif
+
+        default:
+        {
+            /* Setup error, stall the device */
+            USBD_SetStall(0);
+            break;
+        }
         }
     }
 }
@@ -1266,7 +1266,7 @@ void VolumnControl(void)
     u32R52 = 0;
     u32R53 = 0;
 
-    /* Update MUTE and volume to u32R52/53 when MUTE changed for play */   
+    /* Update MUTE and volume to u32R52/53 when MUTE changed for play */
     if(u8PrePlayMute != g_usbd_PlayMute)
     {
         u8PrePlayMute = g_usbd_PlayMute;
@@ -1323,7 +1323,7 @@ void VolumnControl(void)
     if(i16PreRecVolumeR != g_usbd_RecVolumeR)
     {
         i16PreRecVolumeR = g_usbd_RecVolumeR;
-        u32R16 = 0xFF - ((g_usbd_RecMaxVolume - g_usbd_RecVolumeR) >> 9); 
+        u32R16 = 0xFF - ((g_usbd_RecMaxVolume - g_usbd_RecVolumeR) >> 9);
         IsChange |= 8;
     }
 
@@ -1375,7 +1375,7 @@ void SamplingControl(void)
 {
 #ifdef __FEEDBACK__
     uint8_t *pu8Buf;
-#endif 
+#endif
     if(g_PrePlaySampleRate != g_usbd_PlaySampleRate)
     {
         g_PrePlaySampleRate = g_usbd_PlaySampleRate;
@@ -1389,7 +1389,7 @@ void SamplingControl(void)
             g_play_max_packet_size = g_usbd_PlaySampleRate * PLAY_CHANNELS * 2 / 1000;
 
 #ifdef __FEEDBACK__
-    /* Feedback Endpoint */
+        /* Feedback Endpoint */
         pu8Buf = (uint8_t *)((uint32_t)USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP4));
 
         g_u32SampleRate = g_usbd_PlaySampleRate / 1000;
@@ -1406,11 +1406,11 @@ void SamplingControl(void)
 
         USBD_SET_PAYLOAD_LEN(EP4, 3);
 
-    /* End of Feedback Endpoint */
+        /* End of Feedback Endpoint */
 #endif
     }
     if(g_PreRecSampleRate != g_usbd_RecSampleRate)
-    { 
+    {
         g_PreRecSampleRate = g_usbd_RecSampleRate;
 
         g_rec_max_packet_size = g_usbd_RecSampleRate * REC_CHANNELS * 2 / 1000;

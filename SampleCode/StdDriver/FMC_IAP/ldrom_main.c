@@ -44,6 +44,9 @@ void SYS_Init(void)
     /* Select UART module clock source */
     CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UARTSEL_HXT, CLK_CLKDIV0_UART(1));
 
+    /* Update System Core Clock */
+    /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock and CyclesPerUs automatically. */
+    SystemCoreClockUpdate();
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
@@ -116,7 +119,11 @@ int main()
     __set_PRIMASK(1);
 
     /* Change VECMAP for booting to APROM */
-    FMC_SetVectorPageAddr(FMC_APROM_BASE);
+    if (FMC_SetVectorPageAddr(FMC_APROM_BASE) != 0)
+    {
+        PutString("FMC_SetVectorPageAddr failed!\n");
+        while (1);
+    }
 
     /* Lock protected Register */
     SYS_LockReg();

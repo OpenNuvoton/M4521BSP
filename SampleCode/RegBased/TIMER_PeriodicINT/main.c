@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include "M4521.h"
 
-#define PLLCON_SETTING      CLK_PLLCTL_72MHz_HXT
+#define PLLCTL_SETTING      CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK           72000000
 
 
@@ -121,7 +121,7 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Enable PLL and Set PLL frequency */
-    CLK->PLLCTL = PLLCON_SETTING;
+    CLK->PLLCTL = PLLCTL_SETTING;
 
     /* Waiting for clock ready */
     while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));

@@ -17,7 +17,7 @@
 /* Global Interface Variables Declarations                                                                 */
 /*---------------------------------------------------------------------------------------------------------*/
 extern void SRAM_BS616LV4017(uint32_t u32MaxSize);
-void AccessEBIWithPDMA(void);
+int32_t AccessEBIWithPDMA(void);
 
 void Configure_EBI_16BIT_Pins(void)
 {
@@ -108,6 +108,8 @@ void UART0_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+    int32_t  result;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -151,7 +153,7 @@ int main(void)
     SRAM_BS616LV4017(512 * 1024);
 
     /* EBI sram with PDMA test */
-    AccessEBIWithPDMA();
+    result = AccessEBIWithPDMA();
 
     /* Disable EBI function */
     EBI_Close(EBI_BANK0);
@@ -159,7 +161,10 @@ int main(void)
     /* Disable EBI clock */
     CLK_DisableModuleClock(EBI_MODULE);
 
-    printf("*** SRAM Test OK ***\n");
+    if (result == 0)
+        printf("*** SRAM Test OK ***\n");
+    else
+        printf("!!! SRAM Test FAIL !!!\n");
 
     while(1);
 }
@@ -168,6 +173,8 @@ int main(void)
 /*---------------------------------------------------------------------------------------------------------*/
 /* Global variables for PDMA                                                                               */
 /*---------------------------------------------------------------------------------------------------------*/
+#define PDMA_TIMEOUT     (SystemCoreClock / 10)
+
 uint32_t PDMA_TEST_LENGTH = 64;
 uint32_t SrcArray[64];
 uint32_t DestArray[64];
@@ -202,10 +209,11 @@ void PDMA_IRQHandler(void)
         printf("unknown interrupt !!\n");
 }
 
-void AccessEBIWithPDMA(void)
+int32_t AccessEBIWithPDMA(void)
 {
     uint32_t i;
     uint32_t u32Result0 = 0x5A5A, u32Result1 = 0x5A5A;
+    uint32_t u32Timeout;
 
     printf("[[ Access EBI with PDMA ]]\n");
 
@@ -237,7 +245,13 @@ void AccessEBIWithPDMA(void)
 
     u32IsTestOver = 0;
     PDMA_Trigger(2);
-    while(u32IsTestOver == 0);
+    for (u32Timeout = 0; !u32IsTestOver && (u32Timeout < PDMA_TIMEOUT); u32Timeout++);
+    if (u32Timeout >= PDMA_TIMEOUT)
+    {
+        printf("PDMA time-out!\n");
+        return -1;
+    }
+
     /* Transfer internal SRAM to EBI SRAM done */
 
     /* Clear internal SRAM data */
@@ -253,7 +267,13 @@ void AccessEBIWithPDMA(void)
 
     u32IsTestOver = 0;
     PDMA_Trigger(2);
-    while(u32IsTestOver == 0);
+    for (u32Timeout = 0; !u32IsTestOver && (u32Timeout < PDMA_TIMEOUT); u32Timeout++);
+    if (u32Timeout >= PDMA_TIMEOUT)
+    {
+        printf("PDMA time-out!\n");
+        return -1;
+    }
+
     /* Transfer EBI SRAM to internal SRAM done */
     for(i=0; i<64; i++)
     {
@@ -269,16 +289,17 @@ void AccessEBIWithPDMA(void)
         else
         {
             printf("        FAIL - data matched (0x%X)\n\n", u32Result0);
-            while(1);
+            return -1;
         }
     }
     else
     {
         printf("        PDMA fail\n\n");
-        while(1);
+        return -1;
     }
 
     PDMA_Close();
+    return 0;
 }
 
 

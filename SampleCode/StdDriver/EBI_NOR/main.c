@@ -12,7 +12,6 @@
 
 #define PLL_CLOCK           72000000
 
-
 /*---------------------------------------------------------------------------------------------------------*/
 /* Global Interface Variables Declarations                                                                 */
 /*---------------------------------------------------------------------------------------------------------*/
@@ -22,7 +21,6 @@ extern uint16_t NOR_MX29LV320T_READ(uint32_t u32Bank, uint32_t u32DstAddr);
 extern int32_t NOR_MX29LV320T_WRITE(uint32_t u32Bank, uint32_t u32DstAddr, uint16_t u16Data);
 extern void NOR_MX29LV320T_GET_ID(uint32_t u32Bank, uint16_t *pu16IDTable);
 extern int32_t NOR_MX29LV320T_EraseChip(uint32_t u32Bank, uint32_t u32IsCheckBlank);
-
 
 void Configure_EBI_16BIT_Pins(void)
 {
@@ -88,6 +86,10 @@ void SYS_Init(void)
 
     /* Peripheral clock source */
     CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UARTSEL_PLL, CLK_CLKDIV0_UART(1));
+
+    /* Update System Core Clock */
+    /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock and CyclesPerUs automatically. */
+    SystemCoreClockUpdate();
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
@@ -156,7 +158,6 @@ int main(void)
     /* Initialize EBI bank1 to access external nor */
     EBI_Open(EBI_BANK1, EBI_BUSWIDTH_16BIT, EBI_TIMING_NORMAL, 0, EBI_CS_ACTIVE_LOW);
 
-
     /* Step 1, check ID */
     NOR_MX29LV320T_GET_ID(EBI_BANK1, (uint16_t *)u16IDTable);
     printf(">> Manufacture ID: 0x%X, Device ID: 0x%X .... ", u16IDTable[0], u16IDTable[1]);
@@ -170,11 +171,12 @@ int main(void)
         printf("PASS !!!\n\n");
     }
 
-
     /* Step 2, erase chip */
     if(NOR_MX29LV320T_EraseChip(EBI_BANK1, TRUE) < 0)
+    {
+        printf("NOR_MX29LV320T_EraseChip failed!\n");
         while(1);
-
+    }
 
     /* Step 3, program flash and compare data */
     printf(">> Run program flash test ......\n");

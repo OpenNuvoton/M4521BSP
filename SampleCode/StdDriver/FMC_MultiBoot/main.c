@@ -51,11 +51,8 @@ void SYS_Init(void)
     CLK->CLKSEL1 = CLK_CLKSEL1_UARTSEL_PLL;
 
     /* Update System Core Clock */
-    /* User can use SystemCoreClockUpdate() to calculate PllClock, SystemCoreClock and CycylesPerUs automatically. */
-    //SystemCoreClockUpdate();
-    PllClock        = PLL_CLOCK;            // PLL
-    SystemCoreClock = PLL_CLOCK / 1;        // HCLK
-    CyclesPerUs     = PLL_CLOCK / 1000000;  // For SYS_SysTickDelay()
+    /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock and CyclesPerUs automatically. */
+    SystemCoreClockUpdate();
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
@@ -117,7 +114,7 @@ int main()
     FMC_Open();
 
     /* Check if boot mode is "APROM with IAP" */
-    if ((FMC_Read(FMC_CONFIG_BASE) & 0xC0) != 0x80)
+    if (((FMC_Read(FMC_CONFIG_BASE) & 0xC0) != 0x80) || g_FMC_i32ErrCode)
     {
         printf("\n\nPlease set boot mode as [APROM with IAP]!\n");
         while (1);
@@ -187,6 +184,12 @@ int main()
     default:
         FMC_SetVectorPageAddr(0x0);
         break;
+    }
+
+    if (g_FMC_i32ErrCode)
+    {
+        printf("FMC_SetVectorPageAddr failed!\n");
+        while (1);
     }
 
     /* Reset CPU only to reset to new vector page */

@@ -1231,7 +1231,7 @@ void MSC_ProcessCmd(void)
 
                 if(MSC_ModeSense10())
                 {
-                     g_u32Length = 0; //page code not support
+                    g_u32Length = 0; //page code not support
                 }
 
                 g_u8BulkState = BULK_IN;
@@ -1248,7 +1248,9 @@ void MSC_ProcessCmd(void)
 
                     USBD_SET_EP_BUF_ADDR(EP2, g_u32BulkBuf0);
                     MSC_Read();
-                } else {
+                }
+                else
+                {
                     //page code not support
                     USBD_SET_EP_BUF_ADDR(EP2, g_u32BulkBuf0);
                     USBD_SET_PAYLOAD_LEN(EP2, 0); //zero length packet ack
@@ -1342,7 +1344,7 @@ void MSC_ProcessCmd(void)
                     i = STORAGE_BUFFER_SIZE;
 
                 if((g_u32LbaAddress >= (16 * CDROM_BLOCK_SIZE)) &&
-                    ((g_u32LbaAddress - 32768) < eprom_length))
+                        ((g_u32LbaAddress - 32768) < eprom_length))
                 {
                     g_u32Address = (uint32_t)(&eprom[g_u32LbaAddress - 32768]);
                     g_u32LbaAddress += i;

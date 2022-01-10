@@ -78,63 +78,63 @@ void HID_UpdateHidData(void)
 #endif
 
 #ifdef __JOYSTICK__
-/* Input Report
- +--------+--------+--------+--------+--------+------------------+------------------+--------+
- | Byte 0 | Byte 1 | Byte 2 | Byte 3 | Byte 4 |      Byte 5      |      Byte 6      | Byte 7 |
- +--------+--------+--------+--------+--------+-------+----------+------------------+--------+
- |        |        |        |        |        | Button|Hat switch|      Button      |        |
- | X-axis | Y-axis | Z-axis | Z-axis |   Rz   |-------+----------+------------------|  Pad   |
- |        |        |        |        |        |4|3|2|1|   0xF    |12|11|10|9|8|7|6|5|        |
- +--------+--------+--------+--------+--------+-------+----------+------------------+--------+
-*/
-    /* Byte 1 */
+        /* Input Report
+         +--------+--------+--------+--------+--------+------------------+------------------+--------+
+         | Byte 0 | Byte 1 | Byte 2 | Byte 3 | Byte 4 |      Byte 5      |      Byte 6      | Byte 7 |
+         +--------+--------+--------+--------+--------+-------+----------+------------------+--------+
+         |        |        |        |        |        | Button|Hat switch|      Button      |        |
+         | X-axis | Y-axis | Z-axis | Z-axis |   Rz   |-------+----------+------------------|  Pad   |
+         |        |        |        |        |        |4|3|2|1|   0xF    |12|11|10|9|8|7|6|5|        |
+         +--------+--------+--------+--------+--------+-------+----------+------------------+--------+
+        */
+        /* Byte 1 */
         if((u32RegC & (1<<5)) == 0)          /* PC5 - Up       */
             buf[1] = 0x00;
         if((u32RegC & (1<<2)) == 0)          /* PC2 - Down     */
             buf[1] = 0xFF;
-    /* Byte 0 */
+        /* Byte 0 */
         if((u32RegA & (1<<7)) == 0)          /* PA7 - Left     */
             buf[0] = 0x00;
         if((u32RegC & (1<<3)) == 0)          /* PC3 - Right    */
             buf[0] = 0xFF;
-    /* Byte 5 */
-        if((u32RegB & (1<<1)) == 0)          /* PB1 - Button 1 */ 
+        /* Byte 5 */
+        if((u32RegB & (1<<1)) == 0)          /* PB1 - Button 1 */
             buf[5] |= 0x10;
         if((u32RegB & (1<<0)) == 0)          /* PB0 - Button 2 */
             buf[5] |= 0x20;
 
 #elif defined  __MEDIAKEY__
-/* Input Report
- +--------+---------+--------+--------+----------+--------+----------+----------+------+
- |        |   BIT7  |  BIT6  |  BIT5  |   BIT4   |  BIT3  |   BIT2   |   BIT1   | BIT0 |
- +--------+---------+--------+--------+----------+--------+----------+----------+------+
- |        |                                               |  Volume  |  Volume  |      |
- | Byte 0 |                     Pad                       |Decrement |Increment | Mute |
- +--------+---------+--------+--------+----------+--------+----------+----------+------+
- |        |         |        |        |   Scan   |  Scan  |          |          |      | 
- | Byte 1 |   Fast  | Rewind | Record | Previous |  Next  |Play/Pause|   Stop   | Play |
- |        | Forward |        |        |   Track  |  Track |          |          |      |
- +--------+---------+--------+--------+----------+--------+----------+----------+------+
- |  Byte  |                                                                            |
- | 2 ~ 7  |                                 Pad                                        |
- +--------+----------------------------------------------------------------------------+
-*/
+        /* Input Report
+         +--------+---------+--------+--------+----------+--------+----------+----------+------+
+         |        |   BIT7  |  BIT6  |  BIT5  |   BIT4   |  BIT3  |   BIT2   |   BIT1   | BIT0 |
+         +--------+---------+--------+--------+----------+--------+----------+----------+------+
+         |        |                                               |  Volume  |  Volume  |      |
+         | Byte 0 |                     Pad                       |Decrement |Increment | Mute |
+         +--------+---------+--------+--------+----------+--------+----------+----------+------+
+         |        |         |        |        |   Scan   |  Scan  |          |          |      |
+         | Byte 1 |   Fast  | Rewind | Record | Previous |  Next  |Play/Pause|   Stop   | Play |
+         |        | Forward |        |        |   Track  |  Track |          |          |      |
+         +--------+---------+--------+--------+----------+--------+----------+----------+------+
+         |  Byte  |                                                                            |
+         | 2 ~ 7  |                                 Pad                                        |
+         +--------+----------------------------------------------------------------------------+
+        */
         buf[0] = 0;
         buf[1] = 0;
 
         if(u32RegB != u32PreRegB)
         {
-    /* Byte 1 */
+            /* Byte 1 */
             if((u32RegB & (1<<1)) == 0)          /* PB1 - Button 1             */
-                buf[1] |= HID_CTRL_PAUSE;        /* Play/Pause - 0x04          */ 
+                buf[1] |= HID_CTRL_PAUSE;        /* Play/Pause - 0x04          */
             u32PreRegB = u32RegB;
         }
         if(u32RegC != u32PreRegC)
         {
-    /* Byte 1 */
+            /* Byte 1 */
             if((u32RegC & (1<<3)) == 0)          /* PC3 - Right                */
                 buf[1] |= HID_CTRL_NEXT;         /* Scan Next Track - 0x08     */
-    /* Byte 0 */
+            /* Byte 0 */
             if((u32RegC & (1<<5)) == 0)          /* PC5 - Up                   */
                 buf[0] |= HID_CTRL_VOLUME_INC;   /* Volume Increment - 0x02    */
             if((u32RegC & (1<<2)) == 0)          /* PC2 - Down                 */
@@ -143,7 +143,7 @@ void HID_UpdateHidData(void)
         }
         if(u32RegA != u32PreRegA)
         {
-    /* Byte 1 */
+            /* Byte 1 */
             if((u32RegA & (1<<7)) == 0)          /* PA7 - Left                 */
                 buf[1] |= HID_CTRL_PREVIOUS;     /* Scan Previous Track - 0x10 */
             u32PreRegA = u32RegA;

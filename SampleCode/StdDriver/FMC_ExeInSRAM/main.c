@@ -21,7 +21,6 @@
 #define TEST_PATTERN                0x5A5A5A5A
 
 
-
 void SYS_Init(void)
 {
     /*---------------------------------------------------------------------------------------------------------*/
@@ -54,6 +53,10 @@ void SYS_Init(void)
 
     /* Select UART module clock source as HXT and UART module clock divider as 1 */
     CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UARTSEL_HXT, CLK_CLKDIV0_UART(1));
+
+    /* Update System Core Clock */
+    /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock and CyclesPerUs automatically. */
+    SystemCoreClockUpdate();
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
@@ -106,24 +109,31 @@ int main()
 
     /* The ROM address for erase/write/read demo */
     u32Addr = 0x4000;
-    FMC_Erase(u32Addr); /* Erase page */
+    if (FMC_Erase(u32Addr) != 0) /* Erase page */
+    {
+        printf("FMC_Erase page 0x%x failed!\n", u32Addr);
+        goto err;
+    }
+
     for(i = 0; i < 0x100; i += 4)
     {
-
         /* Write Demo */
         u32Data = i + 0x12345678;
-        FMC_Write(u32Addr + i, u32Data);
+        if (FMC_Write(u32Addr + i, u32Data) != 0)
+        {
+            printf("FMC_Write address 0x%x failed!\n", u32Addr);
+            goto err;
+        }
 
         if((i & 0xf) == 0)
             printf(".");
 
         /* Read Demo */
         u32RData = FMC_Read(u32Addr + i);
-
         if(u32Data != u32RData)
         {
             printf("[Read/Write FAIL]\n");
-            while(1);
+            goto err;
         }
     }
     /* Disable FMC ISP function */
@@ -131,10 +141,12 @@ int main()
 
     /* Lock protected registers */
     SYS_LockReg();
-
     printf("\nFMC Sample Code Completed.\n");
-
     while(1);
+
+err:
+    printf("\nFMC Sample Code FAIL! g_FMC_i32ErrCode = %d\n", g_FMC_i32ErrCode);
+    while (1);
 }
 
 
