@@ -21,7 +21,7 @@ uint32_t g_u32TxValue;
 uint32_t g_u32DataCount;
 
 /* Function prototype declaration */
-void SYS_Init(void);
+int32_t SYS_Init(void);
 void UART0_Init(void);
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -30,16 +30,23 @@ void UART0_Init(void);
 int32_t main(void)
 {
     uint32_t u32RxValue1, u32RxValue2;
+    int32_t  retval;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
     /* Init System, IP clock and multi-function I/O. */
-    SYS_Init();
+    retval = SYS_Init();
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for print message */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     printf("+----------------------------------------------------------+\n");
     printf("|            I2S Driver Sample Code (slave mode)           |\n");
@@ -110,8 +117,10 @@ int32_t main(void)
     }
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t   u32Timeout;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -120,7 +129,11 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
+
 
     /* Switch HCLK clock source to HIRC */
     CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_HIRC;
@@ -131,12 +144,20 @@ void SYS_Init(void)
     /* Enable HXT */
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
+    /* Waiting for HXT ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
+
     /* Enable PLL and Set PLL frequency */
     CLK->PLLCTL = PLLCTL_SETTING;
 
-    /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    /* Waiting for PLL ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
 
     /* Switch STCLK source to HCLK/2 and HCLK clock source to PLL */
     CLK->CLKSEL0 = CLK_CLKSEL0_STCLKSEL_HCLK_DIV2 | CLK_CLKSEL0_HCLKSEL_PLL;
@@ -164,6 +185,7 @@ void SYS_Init(void)
     /* GPE[13:10] : SPI1_CLK (I2S1_BCLK), SPI1_MISO (I2S1_DI), SPI1_MOSI (I2S1_DO), SPI1_SS (I2S1_LRCLK). */
     SYS->GPE_MFPH = SYS_GPE_MFPH_PE10MFP_SPI1_MISO | SYS_GPE_MFPH_PE11MFP_SPI1_MOSI | SYS_GPE_MFPH_PE12MFP_SPI1_SS | SYS_GPE_MFPH_PE13MFP_SPI1_CLK;
 
+    return 0;
 }
 
 void UART0_Init(void)

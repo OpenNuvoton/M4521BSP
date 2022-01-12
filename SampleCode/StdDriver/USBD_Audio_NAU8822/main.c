@@ -171,12 +171,8 @@ int32_t main(void)
     /* Backup init trim */
     u32TrimInit = M32(TRIM_INIT);
 
-    /* Waiting for USB bus stable */
+    /* Clear SOF */
     USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
-    while((USBD->INTSTS & USBD_INTSTS_SOFIF_Msk) == 0);
-
-    /* Enable USB crystal-less */
-    SYS->IRC48MTCTL |= (SYS_IRC48MTCTL_REFCKSEL_Msk | 0x1);
 #endif
     NVIC_EnableIRQ(USBD_IRQn);
     NVIC_EnableIRQ(SPI1_IRQn);
@@ -195,21 +191,30 @@ int32_t main(void)
         extern int32_t kbhit(void);
 
 #if CRYSTAL_LESS
-        /* Re-start crystal-less when any error found */
+        /* Start USB trim if it is not enabled */
+        if ((SYS->IRC48MTCTL & SYS_IRC48MTCTL_FREQSEL_Msk) != 1)
+        {
+            /* Start USB trim only when SOF */
+            if (USBD->INTSTS & USBD_INTSTS_SOFIF_Msk)
+            {
+                /* Clear SOF */
+                USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
+                /* re-enable crystal-less */
+                SYS->IRC48MTCTL |= (SYS_IRC48MTCTL_REFCKSEL_Msk | 0x1);
+            }
+        }
+
+        /* Disable USB trim when error */
         if (SYS->IRC48MTISTS & (SYS_IRC48MTISTS_TFAILIF_Msk | SYS_IRC48MTISTS_CLKERRIF_Msk))
         {
-            SYS->IRC48MTISTS = SYS_IRC48MTISTS_TFAILIF_Msk | SYS_IRC48MTISTS_CLKERRIF_Msk;
-
             /* Init TRIM */
             M32(TRIM_INIT) = u32TrimInit;
-
-            /* Waiting for USB bus stable */
+            /* disable crystall-less */
+            SYS->IRC48MTCTL = 0;
+            /* clear error flags */
+            SYS->IRC48MTISTS = SYS_IRC48MTISTS_TFAILIF_Msk | SYS_IRC48MTISTS_CLKERRIF_Msk;
+            /* clear SOF */
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
-            while((USBD->INTSTS & USBD_INTSTS_SOFIF_Msk) == 0);
-
-            /* Re-enable crystal-less */
-            SYS->IRC48MTCTL |= (SYS_IRC48MTCTL_REFCKSEL_Msk | 0x1);
-            //printf("USB trim fail. Just retry. SYS->HIRCTSTS = 0x%x, SYS->HIRCTCTL = 0x%x\n", SYS->HIRCTSTS, SYS->HIRCTCTL);
         }
 #endif
         /* Adjust codec sampling rate to synch with USB. The adjustment range is +-0.005% */
