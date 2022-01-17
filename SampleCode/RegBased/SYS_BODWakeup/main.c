@@ -22,8 +22,15 @@
 /*---------------------------------------------------------------------------------------------------------*/
 void PowerDownFunction(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* Check if all the debug messages are finished */
-    UART_WAIT_TX_EMPTY(UART0);
+    u32TimeOutCnt = SystemCoreClock / 2;
+    while((UART0->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) != UART_FIFOSTS_TXEMPTYF_Msk)
+    {
+        if(--u32TimeOutCnt == 0)
+            break;
+    }
 
     /* Enable Power-down mode wake-up interrupt */
     CLK->PWRCTL |= CLK_PWRCTL_PDWKIEN_Msk;
@@ -65,18 +72,23 @@ void PWRWU_IRQHandler(void)
     }
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32TimeOutCnt;
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
-
-    /* Enable HIRC clock (Internal RC 22.1184MHz) */
+    /* Enable HIRC clock */
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
-    /* Wait for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    /* Waiting for HIRC clock ready */
+    u32TimeOutCnt = SystemCoreClock / 2;
+    while((CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) != CLK_STATUS_HIRCSTB_Msk)
+    {
+        if(--u32TimeOutCnt == 0)
+            return CLK_TIMEOUT_ERR;
+    }
 
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HIRC;
@@ -88,12 +100,25 @@ void SYS_Init(void)
     /* Enable HXT clock (external XTAL 12MHz) */
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
-    /* Wait for HXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    /* Waiting for HXT clock ready */
+    u32TimeOutCnt = SystemCoreClock / 2;
+    while((CLK->STATUS & CLK_STATUS_HXTSTB_Msk) != CLK_STATUS_HXTSTB_Msk)
+    {
+        if(--u32TimeOutCnt == 0)
+            return CLK_TIMEOUT_ERR;
+    }
 
     /* Set core clock as PLL_CLOCK from PLL */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+
+    /* Waiting for PLL_CLOCK ready */
+    u32TimeOutCnt = SystemCoreClock / 2;
+    while((CLK->STATUS & CLK_STATUS_PLLSTB_Msk) != CLK_STATUS_PLLSTB_Msk)
+    {
+        if(--u32TimeOutCnt == 0)
+            return CLK_TIMEOUT_ERR;
+    }
+
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_PLL;
 
     /* Update System Core Clock */
@@ -120,6 +145,7 @@ void SYS_Init(void)
     SYS->GPC_MFPL &= ~SYS_GPC_MFPL_PC1MFP_Msk;
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC1MFP_CLKO;
 
+    return 0;
 }
 
 void UART0_Init()
@@ -141,18 +167,25 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    int32_t  retval;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, peripheral clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     printf("\n\nCPU @ %d Hz\n", SystemCoreClock);
     printf("+------------------------------------------------+\n");
