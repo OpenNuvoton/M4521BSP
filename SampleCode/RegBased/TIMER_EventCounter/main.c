@@ -53,8 +53,10 @@ void TMR2_IRQHandler(void)
     }
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32Timeout;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -62,7 +64,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
 
     /* Switch HCLK clock source to HIRC */
     CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_HIRC;
@@ -73,12 +78,20 @@ void SYS_Init(void)
     /* Enable HXT */
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
+    /* Waiting for HXT ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
+
     /* Enable PLL and Set PLL frequency */
     CLK->PLLCTL = PLLCTL_SETTING;
 
-    /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    /* Waiting for PLL ready */
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
 
     /* Switch STCLK source to HCLK/2 and HCLK clock source to PLL */
     CLK->CLKSEL0 = CLK_CLKSEL0_STCLKSEL_HCLK_DIV2 | CLK_CLKSEL0_HCLKSEL_PLL;
@@ -98,6 +111,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PD multi-function pins for UART0 RXD, TXD and Timer2 event counter pin */
     SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD | SYS_GPD_MFPL_PD3MFP_T2;
+    return 0;
 }
 
 void UART0_Init(void)
@@ -120,18 +134,26 @@ void UART0_Init(void)
 int main(void)
 {
     volatile uint32_t u32InitCount;
+    uint32_t u32Timeout;
+    int32_t  retval;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, peripheral clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     printf("\n\nCPU @ %d Hz\n", SystemCoreClock);
     printf("+----------------------------------------------+\n");
@@ -161,12 +183,25 @@ int main(void)
 
     /* Enable Timer2 external event counter input function */
     TIMER2->CMP = 56789;
-    while(TIMER_GetCounter(TIMER2) == 0);
+    u32Timeout = SystemCoreClock / 10;
+    while ((TIMER_GetCounter(TIMER2) == 0) && (u32Timeout-- > 0));
+    if (TIMER_GetCounter(TIMER2) == 0)
+    {
+        printf("TIMER2 not counting!\n");
+        while (1);
+    }
+
     TIMER2->CTL = TIMER_CTL_CNTEN_Msk | TIMER_CTL_INTEN_Msk | TIMER_CTL_EXTCNTEN_Msk | TIMER_CONTINUOUS_MODE;
-    while(!(TIMER2->CTL & TIMER_CTL_ACTSTS_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(TIMER2->CTL & TIMER_CTL_ACTSTS_Msk) && (u32Timeout-- > 0));
+    if (!(TIMER2->CTL & TIMER_CTL_ACTSTS_Msk))
+    {
+        printf("TIMER2 ACTSTS not set!\n");
+        while (1);
+    }
 
     /* To check if counter value of Timer2 should be 0 while event counter mode is enabled */
-    if(TIMER_GetCounter(TIMER2) != 0)
+    if (TIMER_GetCounter(TIMER2) != 0)
     {
         printf("Default counter value is not 0. (%d)\n", TIMER_GetCounter(TIMER2));
 
@@ -181,8 +216,15 @@ int main(void)
     GenerateEventCounterSource(3, 2, 1);
 
     /* To check if counter value of Timer2 should be 1 */
-    while(TIMER_GetCounter(TIMER2) == 0);
-    if(TIMER_GetCounter(TIMER2) != 1)
+    u32Timeout = SystemCoreClock;
+    while ((TIMER_GetCounter(TIMER2) == 0) && (u32Timeout-- > 0));
+    if (TIMER_GetCounter(TIMER2) == 0)
+    {
+        printf("TIMER2 not counting!\n");
+        while (1);
+    }
+
+    if (TIMER_GetCounter(TIMER2) != 1)
     {
         printf("Get unexpected counter value. (%d)\n", TIMER_GetCounter(TIMER2));
 
@@ -194,13 +236,19 @@ int main(void)
     /* To generate remains counts to T2 pin */
     GenerateEventCounterSource(3, 2, (56789 - 1));
 
-    while(1)
+    u32Timeout = SystemCoreClock / 10;
+    while (u32Timeout-- > 0)
     {
-        if(g_au32TMRINTCount[2] == 1)
+        if (g_au32TMRINTCount[2] == 1)
         {
             printf("# Timer2 interrupt event occurred.\n");
             break;
         }
+    }
+    if (g_au32TMRINTCount[2] != 1)
+    {
+        printf("TIMER2 interrupt time out!\n");
+        while (1);
     }
 
     printf("# Get Timer2 event counter value is %d .... ", TIMER_GetCounter(TIMER2));

@@ -24,6 +24,8 @@
   @{
 */
 
+int32_t  g_TIMER_i32ErrCode = 0;
+
 /**
   * @brief      Open Timer with Operate Mode and Frequency
   *
@@ -92,12 +94,15 @@ void TIMER_Close(TIMER_T *timer)
   * @details    This API is used to create a delay loop for u32usec micro seconds by using timer one-shot mode.
   * @note       This API overwrites the register setting of the timer used to count the delay time.
   * @note       This API use polling mode. So there is no need to enable interrupt for the timer module used to generate delay.
+  * @note       Global error code g_TIMER_i32ErrCode
+  *             -1  Timer active status not cleared
   */
 void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
 {
     uint32_t u32Clk = TIMER_GetModuleClock(timer);
     uint32_t u32Prescale = 0, delay = (SystemCoreClock / u32Clk) + 1;
     uint32_t u32Cmpr, u32NsecPerTick;
+    uint32_t u32Timeout;
 
     // Clear current timer configuration/
     timer->CTL = 0;
@@ -142,7 +147,12 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
         __NOP();
     }
 
-    while(timer->CTL & TIMER_CTL_ACTSTS_Msk);
+    g_TIMER_i32ErrCode = 0;
+    u32Timeout = (SystemCoreClock / 1000000) * u32Usec * 2;
+    while ((timer->CTL & TIMER_CTL_ACTSTS_Msk) && (u32Timeout-- > 0));
+
+    if (timer->CTL & TIMER_CTL_ACTSTS_Msk)
+        g_TIMER_i32ErrCode = -1;
 }
 
 /**

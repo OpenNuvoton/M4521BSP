@@ -135,12 +135,20 @@ int main(void)
     SC_Open(SC0, SC_PIN_STATE_LOW, SC_PIN_STATE_HIGH);
     NVIC_EnableIRQ(SC0_IRQn);
 
-    // Wait 'til card insert
-    while(SC_IsCardInserted(SC0) == FALSE);
+    // Wait until card insert
+    while (SC_IsCardInserted(SC0) == FALSE)
+    {
+        if (g_SC_i32ErrCode != 0)
+        {
+            printf("SC time-out error!\n");
+            while (1);
+        }
+    }
+
     // Activate slot 0
     retval = SCLIB_Activate(0, FALSE);
 
-    if(retval == SCLIB_SUCCESS)
+    if ((retval == SCLIB_SUCCESS) && !g_SC_i32ErrCode)
     {
         SCLIB_GetCardInfo(0, &s_info);
         printf("\nATR: ");

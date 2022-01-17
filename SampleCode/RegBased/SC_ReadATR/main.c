@@ -24,21 +24,28 @@ volatile int32_t g_u32SCInt = 0;
 /*---------------------------------------------------------------------------------------------------------*/
 void SC0_IRQHandler(void)
 {
-    while(1)
+    int  i32Timeout;
+
+    i32Timeout = SystemCoreClock;
+    while (i32Timeout-- > 0)
     {
         //When SC receives one byte from external device, RXPOINT(SC_STATUS[17:16]) increases one.
         //When one byte of RX buffer is read by CPU, RXPOINT(SC_STATUS[17:16]) decreases one.
         ATR_Buf[g_u32SCInt++] = (SC0->DAT);
-        if((SC0->STATUS & SC_STATUS_RXPOINT_Msk) == 0)
+        if ((SC0->STATUS & SC_STATUS_RXPOINT_Msk) == 0)
             break;
     }
+    if (i32Timeout <= 0)
+        printf("Time out - SC_STATUS_RXPOINT_Msk not cleared!\n");
     // RDA is the only interrupt enabled in this sample, this status bit
     // automatically cleared after Rx FIFO empty. So no need to clear interrupt
     // status here.
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t   u32Timeout;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -47,7 +54,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
 
     /* Select HCLK clock source as HIRC and and HCLK clock divider as 4 */
     CLK->CLKSEL0 &= ~CLK_CLKSEL0_HCLKSEL_Msk;
@@ -62,11 +72,18 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for HXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Set core clock as PLL_CLOCK from PLL */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
+
     CLK->CLKSEL0 &= (~CLK_CLKSEL0_HCLKSEL_Msk);
     CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_PLL;
 
@@ -113,6 +130,7 @@ void SYS_Init(void)
                       SYS_GPA_MFPL_PA3MFP_SC0_PWR);
     SYS->GPB_MFPL |= SYS_GPB_MFPL_PB2MFP_SC0_CD;
 
+    return 0;
 }
 
 void UART0_Init()
@@ -129,11 +147,17 @@ void UART0_Init()
     UART0->LINE = UART_WORD_LEN_8 | UART_PARITY_NONE | UART_STOP_BIT_1;
 }
 
-void SC0_Init()
+int32_t SC0_Init()
 {
+    uint32_t   u32Timeout = SystemCoreClock;
+
     /* Card detect level from low to high. */
-    while(SC0->CTL & SC_CTL_SYNC_Msk);
+    while ((SC0->CTL & SC_CTL_SYNC_Msk) && (u32Timeout-- > 0));
+    if (SC0->CTL & SC_CTL_SYNC_Msk)
+        return -1;
+
     SC0->CTL = SC_CTL_CDLV_Msk | SC_CTL_SCEN_Msk;
+    return 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -156,8 +180,10 @@ void SC0_ResetReader(void)
     SC0->INTEN = SC_INTEN_RDAIEN_Msk;//Enable receive data reach interrupt
 }
 
-void SC0_ActivationCmd(void)
+int32_t SC0_ActivationCmd(void)
 {
+    uint32_t u32Timeout;
+
     // disable Timer1 interrupt and use polling method to check time-out happened
     SC0->INTEN &= ~SC_INTEN_TMR1IEN_Msk;
 
@@ -169,17 +195,29 @@ void SC0_ActivationCmd(void)
     SC0-> TMRCTL1 = SC_TMR_MODE_0 | (SC_TMRCTL1_CNT_Msk & (1 - 1));;
     SC0->ALTCTL |= SC_ALTCTL_CNTEN1_Msk;//Start a smartcard timer1
 
-    while(((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00));
+    u32Timeout = SystemCoreClock;
+    while (((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00) && (u32Timeout-- > 0));
+    if ((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00)
+        return -1;
+
     // Clear timeout status
     SC0->INTSTS = SC_INTSTS_TMR1IF_Msk;
 
     // Due to synchronization, software should check SYNC(SC_PINCTL[30]) bit when writing a new value to SC_PINCTL register
-    while(SC0->PINCTL & SC_PINCTL_SYNC_Msk);
+    u32Timeout = SystemCoreClock;
+    while ((SC0->PINCTL & SC_PINCTL_SYNC_Msk) && (u32Timeout-- > 0));
+    if (SC0->PINCTL & SC_PINCTL_SYNC_Msk)
+        return -1;
+
     // Start clock
     SC_SET_CLK_PIN(SC0, SC_CLK_ON);
 
     // Due to synchronization, software should check SYNC(SC_PINCTL[30]) bit when writing a new value to SC_PINCTL register
-    while(SC0->PINCTL & SC_PINCTL_SYNC_Msk);
+    u32Timeout = SystemCoreClock;
+    while ((SC0->PINCTL & SC_PINCTL_SYNC_Msk) && (u32Timeout-- > 0));
+    if (SC0->PINCTL & SC_PINCTL_SYNC_Msk)
+        return -1;
+
     // I/O pin high
     SC_SET_IO_PIN(SC0, SC_PIN_STATE_HIGH);
 
@@ -187,20 +225,27 @@ void SC0_ActivationCmd(void)
     SC0-> TMRCTL1 = SC_TMR_MODE_0 | (SC_TMRCTL1_CNT_Msk & (109 - 1));;
     SC0->ALTCTL |= SC_ALTCTL_CNTEN1_Msk;//Start a smartcard timer1
 
+    u32Timeout = SystemCoreClock;
+    while (((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00) && (u32Timeout-- > 0));
+    if ((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00)
+        return -1;
 
-    while(((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00));
     // Clear timeout status
     SC0->INTSTS = SC_INTSTS_TMR1IF_Msk;
 
     // Due to synchronization, software should check SYNC(SC_PINCTL[30]) bit when writing a new value to SC_PINCTL register.
-    while(SC0->PINCTL & SC_PINCTL_SYNC_Msk);
+    u32Timeout = SystemCoreClock;
+    while ((SC0->PINCTL & SC_PINCTL_SYNC_Msk) && (u32Timeout-- > 0));
+    if (SC0->PINCTL & SC_PINCTL_SYNC_Msk)
+        return -1;
+
     // RST pin high
     SC_SET_RST_PIN(SC0, SC_PIN_STATE_HIGH);
 
     // Select operation mode 0  and give a count value
     SC0-> TMRCTL0 = SC_TMR_MODE_0 | (SC_TMRCTL0_CNT_Msk & (22 * 32 + 22)); //// wait 726ETU for ATR
     SC0->ALTCTL |= SC_ALTCTL_CNTEN0_Msk;//Start a smartcard timer0
-
+    return 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -209,12 +254,14 @@ void SC0_ActivationCmd(void)
 int main(void)
 {
     uint32_t i;
+    int32_t  retval;
+    int32_t  i32Timeout;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, IP clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
@@ -226,8 +273,18 @@ int main(void)
     /* Init UART0 for printf */
     UART0_Init();
 
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
+
     /* Init SC0 */
-    SC0_Init();
+    if (SC0_Init() != 0)
+    {
+        printf("SC0 init failed!\n");
+        while (1);
+    }
 
     printf("\n\nCPU @ %dHz\n", SystemCoreClock);
     printf("+------------------------------------------------------------------------+\n");
@@ -246,7 +303,7 @@ int main(void)
     NVIC_EnableIRQ(SC0_IRQn);
 
 
-    /* Wait 'til card insert */
+    /* Wait until card insert */
     while(((SC0->STATUS & SC_STATUS_CDPINSTS_Msk) >> SC_STATUS_CDPINSTS_Pos) !=
             ((SC0->CTL & SC_CTL_CDLV_Msk) >> SC_CTL_CDLV_Pos));
 
@@ -254,11 +311,16 @@ int main(void)
     SC0_ResetReader();
 
     /* Activation sequence generator */
-    SC0_ActivationCmd();
-
-    while(1)
+    if (SC0_ActivationCmd() != 0)
     {
-        if(((SC0->INTSTS & SC_INTSTS_TMR0IF_Msk) == SC_INTSTS_TMR0IF_Msk) &&
+        printf("SC0_ActivationCmd time-out failed!\n");
+        while (1);
+    }
+
+    i32Timeout = SystemCoreClock;
+    while (i32Timeout-- > 0)
+    {
+        if (((SC0->INTSTS & SC_INTSTS_TMR0IF_Msk) == SC_INTSTS_TMR0IF_Msk) &&
                 (SC0->ALTCTL & SC_ALTCTL_CNTEN0_Msk) == 0)
         {
             printf("\nATR: ");
@@ -268,6 +330,8 @@ int main(void)
         }
     }
     printf("\n");
+    if (i32Timeout <= 0)
+        printf("\nRead ATR time-out!\n");
 
 
     while(1);

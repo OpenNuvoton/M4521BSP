@@ -48,6 +48,10 @@ extern "C"
 
 /*@}*/ /* end of group TIMER_EXPORTED_CONSTANTS */
 
+/*---------------------------------------------------------------------------------------------------------*/
+/*  Global variables                                                                                       */
+/*---------------------------------------------------------------------------------------------------------*/
+extern int32_t  g_TIMER_i32ErrCode;
 
 /** @addtogroup TIMER_EXPORTED_FUNCTIONS TIMER Exported Functions
   @{

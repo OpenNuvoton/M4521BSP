@@ -65,8 +65,8 @@ void CLKFAIL_IRQHandler(void)
         {
             if(--u32TimeOutCnt == 0)
             {
-                    printf("HCLK switched to HIRC fail!\n");
-                    break;
+                printf("HCLK switched to HIRC fail!\n");
+                break;
             }
         }
 

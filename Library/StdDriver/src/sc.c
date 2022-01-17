@@ -25,6 +25,7 @@ static uint32_t u32CardStateIgnore[SC_INTERFACE_NUM] = {0};
   @{
 */
 
+int32_t  g_SC_i32ErrCode = 0;
 
 /** @addtogroup SC_EXPORTED_FUNCTIONS SC Exported Functions
   @{
@@ -104,6 +105,7 @@ void SC_Close(SC_T *sc)
 void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
 {
     uint32_t u32Reg = 0, u32Intf;
+    uint32_t u32Timeout;
 
     if(sc == SC0)
         u32Intf = 0;
@@ -131,9 +133,18 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
     {
         u32CardStateIgnore[u32Intf] = 1;
     }
-    while(sc->PINCTL & SC_PINCTL_SYNC_Msk);
+
+    g_SC_i32ErrCode = 0;
+    u32Timeout = SystemCoreClock;
+    while ((sc->PINCTL & SC_PINCTL_SYNC_Msk) && (u32Timeout-- > 0));
+    if (sc->PINCTL & SC_PINCTL_SYNC_Msk)
+        g_SC_i32ErrCode = -1;
     sc->PINCTL = u32PWR ? 0 : SC_PINCTL_PWRINV_Msk;
-    while(sc->CTL & SC_CTL_SYNC_Msk);
+
+    u32Timeout = SystemCoreClock;
+    while ((sc->CTL & SC_CTL_SYNC_Msk) && (u32Timeout-- > 0));
+    if (sc->CTL & SC_CTL_SYNC_Msk)
+        g_SC_i32ErrCode = -1;
     sc->CTL = SC_CTL_SCEN_Msk | u32Reg;
 }
 
@@ -146,6 +157,7 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
 void SC_ResetReader(SC_T *sc)
 {
     uint32_t u32Intf;
+    uint32_t u32Timeout;
 
     if(sc == SC0)
         u32Intf = 0;
@@ -167,7 +179,11 @@ void SC_ResetReader(SC_T *sc)
     // Reset FIFO, enable auto de-activation while card removal
     sc->ALTCTL |= (SC_ALTCTL_TXRST_Msk | SC_ALTCTL_RXRST_Msk | SC_ALTCTL_ADACEN_Msk);
     // Set Rx trigger level to 1 character, longest card detect debounce period, disable error retry (EMV ATR does not use error retry)
-    while(sc->CTL & SC_CTL_SYNC_Msk);
+    u32Timeout = SystemCoreClock;
+    while ((sc->CTL & SC_CTL_SYNC_Msk) && (u32Timeout-- > 0));
+    if (sc->CTL & SC_CTL_SYNC_Msk)
+        g_SC_i32ErrCode = -1;
+
     sc->CTL &= ~(SC_CTL_RXTRGLV_Msk | SC_CTL_CDDBSEL_Msk | SC_CTL_TXRTY_Msk | SC_CTL_RXRTY_Msk);
     // Enable auto convention, and all three smartcard internal timers
     sc->CTL |= SC_CTL_AUTOCEN_Msk | SC_CTL_TMRSEL_Msk;

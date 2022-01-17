@@ -103,7 +103,7 @@ int main(void)
     TIMER_Delay(TIMER0, 100000);
     u32DelayTime = TIMER_GetCounter(TIMER1) / 1000;
     printf("    Check DelayTime-1 is %d ms .... ", u32DelayTime);
-    if(u32DelayTime == 100)
+    if ((u32DelayTime == 100) && !g_TIMER_i32ErrCode)
         printf("PASS.\n");
     else
         printf("FAIL.\n");
@@ -112,7 +112,7 @@ int main(void)
     TIMER_Delay(TIMER0, 200000);
     u32DelayTime = TIMER_GetCounter(TIMER1) / 1000;
     printf("    Check DelayTime-2 is %d ms .... ", u32DelayTime);
-    if(u32DelayTime == 200)
+    if ((u32DelayTime == 200) && !g_TIMER_i32ErrCode)
         printf("PASS.\n");
     else
         printf("FAIL.\n");
@@ -121,7 +121,7 @@ int main(void)
     TIMER_Delay(TIMER0, 300000);
     u32DelayTime = TIMER_GetCounter(TIMER1) / 1000;
     printf("    Check DelayTime-3 is %d ms .... ", u32DelayTime);
-    if(u32DelayTime == 300)
+    if ((u32DelayTime == 300) && !g_TIMER_i32ErrCode)
         printf("PASS.\n");
     else
         printf("FAIL.\n");
@@ -130,7 +130,7 @@ int main(void)
     TIMER_Delay(TIMER0, 400000);
     u32DelayTime = TIMER_GetCounter(TIMER1) / 1000;
     printf("    Check DelayTime-4 is %d ms .... ", u32DelayTime);
-    if(u32DelayTime == 400)
+    if ((u32DelayTime == 400) && !g_TIMER_i32ErrCode)
         printf("PASS.\n");
     else
         printf("FAIL.\n");
@@ -139,7 +139,7 @@ int main(void)
     TIMER_Delay(TIMER0, 500000);
     u32DelayTime = TIMER_GetCounter(TIMER1) / 1000;
     printf("    Check DelayTime-5 is %d ms .... ", u32DelayTime);
-    if(u32DelayTime == 500)
+    if ((u32DelayTime == 500) && !g_TIMER_i32ErrCode)
         printf("PASS.\n");
     else
         printf("FAIL.\n");

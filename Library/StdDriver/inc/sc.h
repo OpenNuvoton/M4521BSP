@@ -50,6 +50,10 @@ extern "C"
 
 /*@}*/ /* end of group SC_EXPORTED_CONSTANTS */
 
+/*---------------------------------------------------------------------------------------------------------*/
+/*  Global variables                                                                                       */
+/*---------------------------------------------------------------------------------------------------------*/
+extern int32_t  g_SC_i32ErrCode;
 
 /** @addtogroup SC_EXPORTED_FUNCTIONS SC Exported Functions
   @{
