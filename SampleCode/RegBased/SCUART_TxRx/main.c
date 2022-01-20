@@ -15,6 +15,8 @@ uint8_t au8TxBuf[] = "Hello World!";
 #define PLLCTL_SETTING      CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
+int32_t g_SCUART_i32ErrCode = 0;       /*!< SCUART global error code */
+
 /*---------------------------------------------------------------------------------------------------------*/
 /* The interrupt services routine of smartcard port 0                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
@@ -144,17 +146,86 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
+/* Get Sc UART clock                                                                                       */
+/*---------------------------------------------------------------------------------------------------------*/
+static uint32_t SCUART_GetClock(SC_T *sc)
+{
+    uint32_t u32ClkSrc, u32Num, u32Clk;
+
+    if(sc == SC0)
+        u32Num = 0;
+#if 0 /* M4521 has only one SC interface */
+    else if(sc == SC1)
+        u32Num = 1;
+    else if(sc == SC2)
+        u32Num = 2;
+    else if(sc == SC3)
+        u32Num = 3;
+    else if(sc == SC4)
+        u32Num = 4;
+    else if(sc == SC5)
+        u32Intf = 5;
+#endif
+    else
+        return FALSE;
+
+    u32ClkSrc = (CLK->CLKSEL3 >> (2 * u32Num)) & CLK_CLKSEL3_SC0SEL_Msk;
+
+    // Get smartcard module clock
+    if(u32ClkSrc == 0)
+        u32Clk = __HXT;
+    else if(u32ClkSrc == 1)
+        u32Clk = CLK_GetPLLClockFreq();
+    else if(u32ClkSrc == 2)
+    {
+        SystemCoreClockUpdate();
+        if(CLK->CLKSEL0 & CLK_CLKSEL0_PCLK0SEL_Msk)
+            u32Clk = SystemCoreClock / 2;
+        else
+            u32Clk = SystemCoreClock;
+    }
+    else
+        u32Clk = __HIRC;
+
+#if 0 /* M4521 has only one SC interface */
+    if(u32Num < 4)
+    {
+        u32Clk /= (((CLK->CLKDIV1 >> (8 * u32Num)) & CLK_CLKDIV1_SC0DIV_Msk) + 1);
+    }
+    else
+    {
+        u32Clk /= (((CLK->CLKDIV2 >> (8 * (u32Num - 4))) & CLK_CLKDIV2_SC4DIV_Msk) + 1);
+    }
+#else
+    u32Clk /= (((CLK->CLKDIV1 >> (8 * u32Num)) & CLK_CLKDIV1_SC0DIV_Msk) + 1);
+#endif
+
+    return u32Clk;
+}
+
+/*---------------------------------------------------------------------------------------------------------*/
 /* Write data to Sc UART interface                                                                         */
 /*---------------------------------------------------------------------------------------------------------*/
-void SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+uint32_t SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
     uint32_t u32Count;
+    /* Baudrate * (start bit + 8-bit data + 1-bit parity + 2-bit stop) */
+    uint32_t u32Delay = (SystemCoreClock / SCUART_GetClock(sc)) * sc->ETUCTL * 12, i;
 
     for(u32Count = 0; u32Count != u32WriteBytes; u32Count++)
     {
-        while(SCUART_GET_TX_FULL(sc));  // Wait 'til FIFO not full
+        while(SCUART_GET_TX_FULL(sc))  // Wait 'til FIFO not full
+        {
+            /* Block longer than expected. Maybe some interrupt disable SCUART clock? */
+            if(i++ > u32Delay)
+            {
+                g_SCUART_i32ErrCode = SCUART_TIMEOUT_ERR;
+                return u32Count;
+            }
+        }
         sc->DAT = pu8TxBuf[u32Count];    // Write 1 byte to FIFO
     }
+    return u32Count;
 }
 
 /*---------------------------------------------------------------------------------------------------------*/

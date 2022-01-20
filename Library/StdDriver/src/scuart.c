@@ -19,6 +19,7 @@
   @{
 */
 
+int32_t g_SCUART_i32ErrCode = 0;       /*!< SCUART global error code */
 
 /** @addtogroup SCUART_EXPORTED_FUNCTIONS SCUART Exported Functions
   @{
@@ -210,19 +211,30 @@ void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC)
   * @param[in] sc The pointer of smartcard module.
   * @param[in] pu8TxBuf The buffer containing data to send to transmit FIFO.
   * @param[in] u32WriteBytes Number of data to send.
-  * @return None
-  * @details This function is to write data into transmit FIFO to send data out.
-  * @note This function blocks until all data write into FIFO.
+  * @return Actual number of data put into SCUART Tx FIFO
+  * @note This function sets g_SCUART_i32ErrCode to SCUART_TIMEOUT_ERR if the Tx FIFO
+  *       blocks longer than expected.
   */
-void SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+uint32_t SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
     uint32_t u32Count;
+    /* Baudrate * (start bit + 8-bit data + 1-bit parity + 2-bit stop) */
+    uint32_t u32Delay = (SystemCoreClock / SCUART_GetClock(sc)) * sc->ETUCTL * 12, i;
 
     for(u32Count = 0; u32Count != u32WriteBytes; u32Count++)
     {
-        while(SCUART_GET_TX_FULL(sc));  // Wait 'til FIFO not full
+        while(SCUART_GET_TX_FULL(sc))  // Wait 'til FIFO not full
+        {
+            /* Block longer than expected. Maybe some interrupt disable SCUART clock? */
+            if(i++ > u32Delay)
+            {
+                g_SCUART_i32ErrCode = SCUART_TIMEOUT_ERR;
+                return u32Count;
+            }
+        }
         sc->DAT = pu8TxBuf[u32Count];    // Write 1 byte to FIFO
     }
+    return u32Count;
 }
 
 

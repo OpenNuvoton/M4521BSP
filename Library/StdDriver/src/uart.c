@@ -234,6 +234,7 @@ void UART_Open(UART_T* uart, uint32_t u32baudrate)
 uint32_t UART_Read(UART_T* uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
 {
     uint32_t  u32Count, u32delayno;
+    uint32_t  u32Timeout = 3 * SystemCoreClock; // timeout 3 second
 
     for(u32Count = 0; u32Count < u32ReadBytes; u32Count++)
     {
@@ -242,8 +243,8 @@ uint32_t UART_Read(UART_T* uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
         while(uart->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk)   /* Check RX empty => failed */
         {
             u32delayno++;
-            if(u32delayno >= 0x40000000)
-                return FALSE;
+            if(u32delayno >= u32Timeout)
+                return u32Count;
         }
         pu8RxBuf[u32Count] = uart->DAT;    /* Get Data from UART RX  */
     }
@@ -429,6 +430,7 @@ uint32_t UART_Write(UART_T* uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
     uint32_t  u32Count, u32delayno;
     uint32_t  u32Exit = 0ul;
+    uint32_t  u32Timeout = 3 * SystemCoreClock; // timeout 3 second
 
     for (u32Count = 0ul; u32Count != u32WriteBytes; u32Count++)
     {
@@ -438,7 +440,7 @@ uint32_t UART_Write(UART_T* uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
         {
             u32delayno++;
 
-            if (u32delayno >= 0x40000000ul)
+            if (u32delayno >= u32Timeout)
             {
                 u32Exit = 1ul;
                 break;

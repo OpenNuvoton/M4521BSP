@@ -367,9 +367,13 @@ extern "C"
  */
 static __INLINE void I2C_STOP(I2C_T *i2c)
 {
-
+    uint32_t u32TimeOutCount = SystemCoreClock; // 1 second timeout
     (i2c)->CTL |= (I2C_CTL_SI_Msk | I2C_CTL_STO_Msk);
-    while(i2c->CTL & I2C_CTL_STO_Msk);
+    while(i2c->CTL & I2C_CTL_STO_Msk)
+    {
+        u32TimeOutCount--;
+        if(u32TimeOutCount == 0) break;
+    }
 }
 
 void I2C_ClearTimeoutFlag(I2C_T *i2c);

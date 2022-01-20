@@ -171,8 +171,9 @@ void I2C_MasterTx(uint32_t u32Status)
     }
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t   u32Timeout;
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
@@ -182,7 +183,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
 
     /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
     CLK->CLKSEL0 &= ~CLK_CLKSEL0_HCLKSEL_Msk;
@@ -194,11 +198,17 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for HXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Set core clock as PLL_CLOCK from PLL */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
     CLK->CLKSEL0 &= (~CLK_CLKSEL0_HCLKSEL_Msk);
     CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_PLL;
 
@@ -228,6 +238,8 @@ void SYS_Init(void)
 
     /* I2C pin enable schmitt trigger */
     PA->SMTEN |= GPIO_SMTEN_SMTEN2_Msk | GPIO_SMTEN_SMTEN3_Msk;
+
+    return 0;
 }
 
 void UART0_Init(void)
@@ -339,17 +351,25 @@ int32_t Read_Write_SLAVE(uint8_t slvaddr)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    int32_t  retval;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, IP clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     /*
         This sample code sets I2C bus clock to 100kHz. After wake-up, then accesses Slave with Byte

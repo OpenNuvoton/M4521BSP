@@ -70,6 +70,7 @@ void UART0_Init(void)
 int main(void)
 {
     uint32_t i, u32ReadData;
+    uint32_t u32TimeOutCount = SystemCoreClock; // 1 second timeout
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -92,7 +93,16 @@ int main(void)
     if(RTC->INIT != RTC_INIT_ACTIVE_Msk)
     {
         RTC->INIT = RTC_INIT_KEY;
-        while(RTC->INIT != RTC_INIT_ACTIVE_Msk);
+        while(RTC->INIT != RTC_INIT_ACTIVE_Msk)
+        {
+            if(u32TimeOutCount == 0)
+            {
+                printf("\n RTC initial fail!!");
+                printf("\n Please check h/w setting!!");
+                while(1);
+            }
+            u32TimeOutCount--;
+        }
     }
 
     /* Enable Spare registers access function */
@@ -103,7 +113,12 @@ int main(void)
         printf("Write Spare register-%02d to 0x%08X ... ", i, (0x5A5A0000 + i));
         RTC_WaitAccessEnable();
         RTC_WRITE_SPARE_REGISTER(i, 0x5A5A0000 + i);
-        while(!(RTC->SPRCTL & RTC_SPRCTL_SPRRWRDY_Msk));
+        u32TimeOutCount = SystemCoreClock;
+        while(!(RTC->SPRCTL & RTC_SPRCTL_SPRRWRDY_Msk))
+        {
+            if(u32TimeOutCount == 0) break;
+            u32TimeOutCount--;
+        }
         printf("DONE\n");
     }
 
@@ -122,7 +137,13 @@ int main(void)
             printf("0x%08X ... FAIL.\n", u32ReadData);
             while(1);
         }
-        while(!(RTC->SPRCTL & RTC_SPRCTL_SPRRWRDY_Msk));
+
+        u32TimeOutCount = SystemCoreClock;
+        while(!(RTC->SPRCTL & RTC_SPRCTL_SPRRWRDY_Msk))
+        {   // wait spare register stable
+            if(u32TimeOutCount == 0) break;
+            u32TimeOutCount--;
+        }
     }
 
     while(1);
