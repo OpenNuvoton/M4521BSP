@@ -23,7 +23,7 @@ volatile uint32_t g_u32AdcIntFlag, g_u32COVNUMFlag = 0;
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void);
-void EADC_FunctionTest(void);
+int32_t EADC_FunctionTest(void);
 
 
 void SYS_Init(void)
@@ -139,8 +139,9 @@ void PWM0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 /* EADC function test                                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-void EADC_FunctionTest()
+int32_t EADC_FunctionTest()
 {
+    uint32_t u32Timeout;
     uint8_t  u8Option;
     int32_t  i32ConversionData[6] = {0};
 
@@ -185,7 +186,10 @@ void EADC_FunctionTest()
             while(1)
             {
                 /* Wait ADC interrupt (g_u32AdcIntFlag will be set at IRQ_Handler function) */
-                while(g_u32AdcIntFlag == 0);
+                u32Timeout = SystemCoreClock;
+                while((g_u32AdcIntFlag == 0) && (u32Timeout-- > 0));
+                if(g_u32AdcIntFlag == 0)
+                    return -1;
 
                 /* Reset the ADC interrupt indicator */
                 g_u32AdcIntFlag = 0;
@@ -234,7 +238,10 @@ void EADC_FunctionTest()
             while(1)
             {
                 /* Wait ADC interrupt (g_u32AdcIntFlag will be set at IRQ_Handler function) */
-                while(g_u32AdcIntFlag == 0);
+                u32Timeout = SystemCoreClock;
+                while((g_u32AdcIntFlag == 0) && (u32Timeout-- > 0));
+                if(g_u32AdcIntFlag == 0)
+                    return -1;
 
                 /* Reset the ADC interrupt indicator */
                 g_u32AdcIntFlag = 0;
@@ -257,7 +264,7 @@ void EADC_FunctionTest()
 
         }
         else
-            return ;
+            return 0;
 
     }
 }
@@ -279,6 +286,7 @@ void ADC00_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    int32_t retval;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -302,7 +310,13 @@ int32_t main(void)
     printf("\nSystem clock rate: %d Hz", SystemCoreClock);
 
     /* EADC function test */
-    EADC_FunctionTest();
+    retval = EADC_FunctionTest();
+
+    if (retval != 0)
+    {
+        printf("EADC_FunctionTest failed!\n");
+        while (1);
+    }
 
     /* Reset EADC module */
     SYS_ResetModule(EADC_RST);

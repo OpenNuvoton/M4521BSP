@@ -108,6 +108,7 @@ void UART0_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+    uint32_t u32Timeout;
     uint32_t u32Src, u32Dst0, u32Dst1;
 
     /* Unlock protected registers */
@@ -146,7 +147,13 @@ int main(void)
     PDMA_Open(1 << 5);
     PDMA_SetTransferMode(5, PDMA_MEM, 1, (uint32_t)&DMA_DESC[0]);
     PDMA_Trigger(5);
-    while(PDMA_IS_CH_BUSY(5));
+
+    u32Timeout = SystemCoreClock;
+    while(PDMA_IS_CH_BUSY(5) && (u32Timeout-- > 0));
+    if(PDMA_IS_CH_BUSY(5)){
+        printf("transfer timeout\n");
+        while(1);
+    }
 
     printf("test done...\n");
 

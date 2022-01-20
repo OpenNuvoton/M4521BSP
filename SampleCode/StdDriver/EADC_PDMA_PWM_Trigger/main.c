@@ -26,7 +26,7 @@ uint32_t g_u32SampleModuleNum = 0;
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void);
-void EADC_FunctionTest(void);
+int32_t EADC_FunctionTest(void);
 
 
 void SYS_Init(void)
@@ -183,8 +183,9 @@ void ReloadPDMA()
 /*---------------------------------------------------------------------------------------------------------*/
 /* EADC function test                                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-void EADC_FunctionTest()
+int32_t EADC_FunctionTest()
 {
+    uint32_t u32Timeout;
     uint8_t  u8Option;
 
     printf("\n");
@@ -219,12 +220,12 @@ void EADC_FunctionTest()
             /* Enable PWM0 channel 0 counter */
             PWM_Start(PWM0, 0x1); /* PWM0 channel 0 counter start running. */
 
-            while(1)
-            {
-                /* Wait PDMA interrupt (g_u32IsTestOver will be set at IRQ_Handler function) */
-                while(g_u32IsTestOver == 0);
-                break;
-            }
+            /* Wait PDMA interrupt (g_u32IsTestOver will be set at IRQ_Handler function) */
+            u32Timeout = SystemCoreClock;
+            while((g_u32IsTestOver == 0) && (u32Timeout-- > 0));
+            if(g_u32IsTestOver == 0)
+                return -1;
+            
             g_u32IsTestOver = 0;
 
             /* Disable PWM0 channel 0 counter */
@@ -248,12 +249,12 @@ void EADC_FunctionTest()
             /* Enable PWM0 channel 0 counter */
             PWM_Start(PWM0, 0x1); /* PWM0 channel 0 counter start running. */
 
-            while(1)
-            {
-                /* Wait PDMA interrupt (g_u32IsTestOver will be set at IRQ_Handler function) */
-                while(g_u32IsTestOver == 0);
-                break;
-            }
+            /* Wait PDMA interrupt (g_u32IsTestOver will be set at IRQ_Handler function) */
+            u32Timeout = SystemCoreClock;
+            while((g_u32IsTestOver == 0) && (u32Timeout-- > 0));
+            if(g_u32IsTestOver == 0)
+                return -1;
+
             g_u32IsTestOver = 0;
 
             /* Disable PWM0 channel 0 counter */
@@ -264,7 +265,7 @@ void EADC_FunctionTest()
 
         }
         else
-            return ;
+            return 0;
 
         EADC_Close(EADC);
         /* Reset EADC module */
@@ -308,6 +309,8 @@ void PDMA_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    int32_t retval;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -335,7 +338,13 @@ int32_t main(void)
     SYS_ResetModule(EADC_RST);
 
     /* EADC function test */
-    EADC_FunctionTest();
+    retval = EADC_FunctionTest();
+
+    if (retval != 0)
+    {
+        printf("EADC_FunctionTest failed!\n");
+        while (1);
+    }
 
     /* Disable EADC IP clock */
     CLK_DisableModuleClock(EADC_MODULE);

@@ -116,6 +116,8 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+    uint32_t u32Timeout;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -156,7 +158,12 @@ int main(void)
 
     PDMA_Trigger(2);
 
-    while(u32IsTestOver == 0);
+    u32Timeout = SystemCoreClock;
+    while( (u32IsTestOver == 0) && (u32Timeout-- > 0));
+    if((u32IsTestOver==0)){
+        printf("transfer timeout\n");
+        while(1);
+    }
 
     if(u32IsTestOver == 1)
         printf("test done...\n");

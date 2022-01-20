@@ -26,7 +26,7 @@ volatile uint32_t g_u32AdcCmp1IntFlag;
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void);
-void EADC_FunctionTest(void);
+int32_t EADC_FunctionTest(void);
 
 
 void SYS_Init(void)
@@ -105,8 +105,9 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 /* EADC function test                                                                                       */
 /*---------------------------------------------------------------------------------------------------------*/
-void EADC_FunctionTest()
+int32_t EADC_FunctionTest()
 {
+    uint32_t u32Timeout;
     printf("\n");
     printf("+----------------------------------------------------------------------+\n");
     printf("|           EADC compare function (result monitor) sample code         |\n");
@@ -153,7 +154,11 @@ void EADC_FunctionTest()
     EADC_START_CONV(EADC, 0x1);
 
     /* Wait EADC compare interrupt */
-    while((g_u32AdcCmp0IntFlag == 0) && (g_u32AdcCmp1IntFlag == 0));
+    u32Timeout = SystemCoreClock;
+    while((g_u32AdcCmp0IntFlag == 0) && (g_u32AdcCmp1IntFlag == 0) && (u32Timeout-- > 0));
+    if((g_u32AdcCmp0IntFlag == 0) && (g_u32AdcCmp1IntFlag == 0) )
+        return -1;
+    
 
     /* Disable the sample module 0 interrupt */
     EADC_DISABLE_SAMPLE_MODULE_INT(EADC, 0, 0x1);
@@ -174,6 +179,7 @@ void EADC_FunctionTest()
         printf("Comparator 1 interrupt occurs.\nThe conversion result of channel 2 is greater than or equal to 0x800\n");
     }
 
+    return 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -199,6 +205,7 @@ void ADC03_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    int32_t retval;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -219,7 +226,13 @@ int32_t main(void)
     printf("\nSystem clock rate: %d Hz", SystemCoreClock);
 
     /* EADC function test */
-    EADC_FunctionTest();
+    retval = EADC_FunctionTest();
+
+    if (retval != 0)
+    {
+        printf("EADC_FunctionTest failed!\n");
+        while (1);
+    }
 
     /* Reset EADC module */
     SYS_ResetModule(EADC_RST);

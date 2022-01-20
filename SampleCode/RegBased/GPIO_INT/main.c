@@ -66,8 +66,9 @@ void GPC_IRQHandler(void)
     }
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t   u32Timeout;
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
@@ -77,7 +78,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Wait for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
 
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HIRC;
@@ -90,11 +94,18 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Wait for HXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Set core clock as PLL_CLOCK from PLL */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
+
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_PLL;
 
     /* Update System Core Clock */
@@ -117,6 +128,7 @@ void SYS_Init(void)
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
+    return 0;
 }
 
 void UART0_Init()
@@ -138,17 +150,25 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+    int32_t  retval;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, peripheral clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     printf("\n\nCPU @ %d Hz\n", SystemCoreClock);
     printf("+------------------------------------------------+\n");

@@ -23,11 +23,12 @@ volatile uint32_t g_u32AdcIntFlag, g_u32COVNUMFlag = 0;
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void);
-void EADC_FunctionTest(void);
+int32_t EADC_FunctionTest(void);
 
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32Timeout;
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
@@ -37,7 +38,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
 
     /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
     CLK->CLKSEL0 &= ~CLK_CLKSEL0_HCLKSEL_Msk;
@@ -52,11 +56,18 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for HXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Set core clock as PLL_CLOCK from PLL */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
+
     CLK->CLKSEL0 &= (~CLK_CLKSEL0_HCLKSEL_Msk);
     CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_PLL;
 
@@ -113,6 +124,7 @@ void SYS_Init(void)
     /* Disable the GPB0 - GPB3 digital input path to avoid the leakage current. */
     GPIO_DISABLE_DIGITAL_PATH(PB, 0xF);
 
+    return 0;
 }
 
 void UART0_Init()
@@ -146,8 +158,9 @@ void TIMER0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 /* EADC function test                                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-void EADC_FunctionTest()
+int32_t EADC_FunctionTest()
 {
+    uint32_t u32Timeout;
     uint8_t  u8Option;
     int32_t  i32ConversionData[6] = {0};
 
@@ -190,7 +203,10 @@ void EADC_FunctionTest()
             while(1)
             {
                 /* Wait ADC interrupt (g_u32AdcIntFlag will be set at IRQ_Handler function) */
-                while(g_u32AdcIntFlag == 0);
+                u32Timeout = SystemCoreClock;
+                while(g_u32AdcIntFlag == 0 && (u32Timeout-- > 0));
+                if(g_u32AdcIntFlag == 0)
+                    return -1;
 
                 /* Reset the EADC interrupt indicator */
                 g_u32AdcIntFlag = 0;
@@ -237,7 +253,10 @@ void EADC_FunctionTest()
             while(1)
             {
                 /* Wait ADC interrupt (g_u32AdcIntFlag will be set at IRQ_Handler function) */
-                while(g_u32AdcIntFlag == 0);
+                u32Timeout = SystemCoreClock;
+                while(g_u32AdcIntFlag == 0 && (u32Timeout-- > 0));
+                if(g_u32AdcIntFlag == 0)
+                    return -1;
 
                 /* Reset the ADC interrupt indicator */
                 g_u32AdcIntFlag = 0;
@@ -260,7 +279,7 @@ void EADC_FunctionTest()
 
         }
         else
-            return ;
+            return 0;
 
     }
 }
@@ -282,18 +301,25 @@ void ADC00_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    int32_t retval;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, IP clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     /* Init TIMER0 for EADC */
     TIMER0_Init();
@@ -305,7 +331,13 @@ int32_t main(void)
     printf("\nSystem clock rate: %d Hz", SystemCoreClock);
 
     /* EADC function test */
-    EADC_FunctionTest();
+    retval = EADC_FunctionTest();
+
+    if (retval != 0)
+    {
+        printf("EADC_FunctionTest failed!\n");
+        while (1);
+    }
 
     /* Reset EADC module */
     SYS->IPRST2 |= SYS_IPRST1_EADCRST_Msk ;

@@ -130,6 +130,8 @@ void UART0_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+     uint32_t u32Timeout;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -187,6 +189,7 @@ int main(void)
     /* Start PDMA operatin */
     PDMA_Trigger(5);
 
+    u32Timeout = SystemCoreClock;
     while(1)
     {
         if(g_u32IsTestOver == 1)
@@ -195,7 +198,13 @@ int main(void)
             printf("test done...\n");
 
             PDMA_Close();
+            while(1);
         }
+        if(u32Timeout == 0){
+            printf("transfer timeout\n");
+            while(1);
+        }
+
     }
 }
 /*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/
