@@ -31,6 +31,7 @@ void SPI_Init(void);
 int main(void)
 {
     uint32_t u32DataCount;
+    uint32_t u32Timeout = SystemCoreClock;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -80,7 +81,7 @@ int main(void)
     NVIC_EnableIRQ(SPI0_IRQn);
 
     /* Wait for transfer done */
-    while(g_u32RxDataCount < TEST_COUNT);
+    while((g_u32RxDataCount < TEST_COUNT) && (u32Timeout-- > 0));
 
     /* Print the received data */
     printf("Received data:\n");

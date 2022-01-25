@@ -55,12 +55,14 @@ void CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
     uint16_t u32Count[4];
     uint32_t u32i;
     uint16_t u16RisingTime, u16FallingTime, u16HighPeriod, u16LowPeriod, u16TotalPeriod;
+    uint32_t u32Timeout;
 
     /* Clear Capture Falling Indicator (Time A) */
     PWM_ClearCaptureIntFlag(PWM, u32Ch, PWM_CAPTURE_INT_FALLING_LATCH);
 
     /* Wait for Capture Falling Indicator  */
-    while((PWM1->CAPIF & PWM_CAPIF_CFLIF2_Msk) == 0);
+    u32Timeout = SystemCoreClock;
+    while(((PWM1->CAPIF & PWM_CAPIF_CFLIF2_Msk) == 0) && (u32Timeout-- > 0));
 
     /* Clear Capture Falling Indicator (Time B)*/
     PWM_ClearCaptureIntFlag(PWM, u32Ch, PWM_CAPTURE_INT_FALLING_LATCH);
@@ -70,7 +72,8 @@ void CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
     while(u32i < 4)
     {
         /* Wait for Capture Falling Indicator */
-        while(PWM_GetCaptureIntFlag(PWM, u32Ch) < 2);
+        u32Timeout = SystemCoreClock;
+        while((PWM_GetCaptureIntFlag(PWM, u32Ch) < 2) && (u32Timeout-- > 0));
 
         /* Clear Capture Falling and Rising Indicator */
         PWM_ClearCaptureIntFlag(PWM, u32Ch, PWM_CAPTURE_INT_FALLING_LATCH | PWM_CAPTURE_INT_RISING_LATCH);
@@ -79,7 +82,8 @@ void CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
         u32Count[u32i++] = PWM_GET_CAPTURE_FALLING_DATA(PWM, u32Ch);
 
         /* Wait for Capture Rising Indicator */
-        while(PWM_GetCaptureIntFlag(PWM, u32Ch) < 2);
+        u32Timeout = SystemCoreClock;
+        while((PWM_GetCaptureIntFlag(PWM, u32Ch) < 2) && (u32Timeout-- > 0));
 
         /* Clear Capture Rising Indicator */
         PWM_ClearCaptureIntFlag(PWM, u32Ch, PWM_CAPTURE_INT_RISING_LATCH);
@@ -223,6 +227,8 @@ int32_t main(void)
 
     while(1)
     {
+        uint32_t u32Timeout;
+
         printf("\n\nPress any key to start PWM Capture Test\n");
         getchar();
 
@@ -288,7 +294,8 @@ int32_t main(void)
         PWM1->CAPCTL |= PWM_CAPCTL_FCRLDEN2_Msk;
 
         /* Wait until PWM1 channel 2 Timer start to count */
-        while((PWM1->CNT[2]) == 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[2]) == 0) && (u32Timeout-- > 0));
 
         /* Capture the Input Waveform Data */
         CalPeriodTime(PWM1, 2);
@@ -301,7 +308,8 @@ int32_t main(void)
         PWM_Stop(PWM1, PWM_CH_0_MASK);
 
         /* Wait until PWM1 channel 0 Timer Stop */
-        while((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0) && (u32Timeout-- > 0));
 
         /* Disable Timer for PWM1 channel 0 */
         PWM_ForceStop(PWM1, PWM_CH_0_MASK);
@@ -321,7 +329,8 @@ int32_t main(void)
         PWM_Stop(PWM1, PWM_CH_2_MASK);
 
         /* Wait until PWM1 channel 2 current counter reach to 0 */
-        while((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0) && (u32Timeout-- > 0));
 
         /* Disable Timer for PWM1 channel 2 */
         PWM_ForceStop(PWM1, PWM_CH_2_MASK);

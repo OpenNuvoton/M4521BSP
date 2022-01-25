@@ -81,10 +81,11 @@ void PDMA_IRQHandler(void)
 void CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
 {
     uint16_t u16RisingTime, u16FallingTime, u16HighPeriod, u16LowPeriod, u16TotalPeriod;
+    uint32_t u32Timeout = SystemCoreClock;
 
     g_u32IsTestOver = 0;
     /* Wait PDMA interrupt (g_u32IsTestOver will be set at IRQ_Handler function) */
-    while(g_u32IsTestOver == 0);
+    while((g_u32IsTestOver == 0) && (u32Timeout-- > 0));
 
     u16RisingTime = g_u32Count[1];
 
@@ -228,6 +229,7 @@ int32_t main(void)
 
     while(1)
     {
+        uint32_t u32Timeout;
         printf("\n\nPress any key to start PWM Capture Test\n");
         getchar();
 
@@ -312,7 +314,8 @@ int32_t main(void)
         PWM1->CAPCTL |= PWM_CAPCTL_FCRLDEN2_Msk;
 
         /* Wait until PWM1 channel 2 Timer start to count */
-        while((PWM1->CNT[2]) == 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[2]) == 0) && (u32Timeout-- > 0));
 
         /* Capture the Input Waveform Data */
         CalPeriodTime(PWM1, 2);
@@ -325,7 +328,8 @@ int32_t main(void)
         PWM_Stop(PWM1, PWM_CH_0_MASK);
 
         /* Wait until PWM1 channel 0 Timer Stop */
-        while((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0) && (u32Timeout-- > 0));
 
         /* Disable Timer for PWM1 channel 0 */
         PWM_ForceStop(PWM1, PWM_CH_0_MASK);
@@ -342,7 +346,8 @@ int32_t main(void)
         PWM_Stop(PWM1, PWM_CH_2_MASK);
 
         /* Wait until PWM1 channel 2 current counter reach to 0 */
-        while((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0) && (u32Timeout-- > 0));
 
         /* Disable Timer for PWM1 channel 2 */
         PWM_ForceStop(PWM1, PWM_CH_2_MASK);
