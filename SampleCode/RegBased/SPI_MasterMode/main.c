@@ -22,7 +22,7 @@ volatile uint32_t g_u32TxDataCount;
 volatile uint32_t g_u32RxDataCount;
 
 /* Function prototype declaration */
-void SYS_Init(void);
+int32_t SYS_Init(void);
 void UART0_Init(void);
 void SPI_Init(void);
 
@@ -32,16 +32,24 @@ void SPI_Init(void);
 int main(void)
 {
     uint32_t u32DataCount;
+    int32_t retval;
+    uint32_t u32Timeout;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
     /* Init System, IP clock and multi-function I/O. */
-    SYS_Init();
+    retval = SYS_Init();
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     /* Init SPI */
     SPI_Init();
@@ -80,7 +88,13 @@ int main(void)
     NVIC_EnableIRQ(SPI0_IRQn);
 
     /* Wait for transfer done */
-    while(g_u32RxDataCount < TEST_COUNT);
+    u32Timeout = SystemCoreClock;
+    while((g_u32RxDataCount < TEST_COUNT) && (u32Timeout-- > 0));
+    if (g_u32RxDataCount < TEST_COUNT)
+    {
+        printf("Wait for transfer done failed\n");
+        while(1);
+    }
 
     /* Print the received data */
     printf("Received data:\n");
@@ -100,8 +114,10 @@ int main(void)
     while(1);
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32Timeout;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -110,7 +126,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Select HXT as the clock source of HCLK */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HXT;
@@ -138,6 +157,7 @@ void SYS_Init(void)
     SYS->GPB_MFPL &= ~(SYS_GPB_MFPL_PB2MFP_Msk | SYS_GPB_MFPL_PB3MFP_Msk | SYS_GPB_MFPL_PB4MFP_Msk | SYS_GPB_MFPL_PB5MFP_Msk);
     SYS->GPB_MFPL |= (SYS_GPB_MFPL_PB2MFP_SPI0_CLK | SYS_GPB_MFPL_PB3MFP_SPI0_MISO0 | SYS_GPB_MFPL_PB4MFP_SPI0_SS | SYS_GPB_MFPL_PB5MFP_SPI0_MOSI0);
 
+    return 0;
 }
 
 void UART0_Init(void)
@@ -158,7 +178,7 @@ void SPI_Init(void)
     /* Configure SPI0 as a master, clock idle low, 32-bit transaction, drive output on falling clock edge and latch input on rising edge. */
     SPI0->CTL = SPI_MASTER | SPI_CTL_TXNEG_Msk | SPI_CTL_SPIEN_Msk;
     /* Set IP clock divider. SPI clock rate = f_PCLK0 / (5+1) */
-    SPI0->CLKDIV = SPI0->CLKDIV & (~SPI_CLKDIV_DIVIDER_Msk) | 5;
+    SPI0->CLKDIV = (SPI0->CLKDIV & (~SPI_CLKDIV_DIVIDER_Msk)) | 5;
 }
 
 void SPI0_IRQHandler(void)

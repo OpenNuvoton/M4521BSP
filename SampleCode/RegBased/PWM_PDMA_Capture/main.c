@@ -79,13 +79,17 @@ void PDMA_IRQHandler(void)
 /* input signal falling happens (Time B/C/D)                                            */
 /*--------------------------------------------------------------------------------------*/
 //void CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
-void CalPeriodTime()
+int32_t CalPeriodTime()
 {
     uint16_t u16RisingTime, u16FallingTime, u16HighPeriod, u16LowPeriod, u16TotalPeriod;
+    uint32_t u32Timeout;
 
     g_u32IsTestOver = 0;
     /* Wait PDMA interrupt (g_u32IsTestOver will be set at IRQ_Handler function) */
-    while(g_u32IsTestOver == 0);
+    u32Timeout = SystemCoreClock;
+    while((g_u32IsTestOver == 0) && (u32Timeout-- > 0));
+    if (g_u32IsTestOver == 0)
+        return -1;
 
     u16RisingTime = g_u32Count[1];
 
@@ -104,11 +108,15 @@ void CalPeriodTime()
         printf("Capture Test Fail!!\n");
     else
         printf("Capture Test Pass!!\n");
+
+    return 0;
 }
 
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32Timeout;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -117,7 +125,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        return -1;
 
     /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & ~CLK_CLKSEL0_HCLKSEL_Msk) | CLK_CLKSEL0_HCLKSEL_HIRC;
@@ -127,11 +138,18 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for HXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Enable PLL and Set PLL frequency */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        return -1;
+
     CLK->CLKSEL0 = (CLK->CLKSEL0 & ~CLK_CLKSEL0_HCLKSEL_Msk) | CLK_CLKSEL0_HCLKSEL_PLL;
 
     /* Enable PWM1 module clock */
@@ -177,6 +195,8 @@ void SYS_Init(void)
     /* Set PC multi-function pins for PWM1 Channel 0 and 2 */
     SYS->GPC_MFPL = SYS_GPC_MFPL_PC6MFP_PWM1_CH0;
     SYS->GPD_MFPH = SYS_GPD_MFPH_PD14MFP_PWM1_CH2;
+    
+    return 0;
 }
 
 void UART0_Init()
@@ -199,6 +219,8 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    int32_t retval;
+
     /* Init System, IP clock and multi-function I/O
        In the end of SYS_Init() will issue SYS_LockReg()
        to lock protected register. If user want to write
@@ -209,13 +231,19 @@ int32_t main(void)
     SYS_UnlockReg();
 
     /* Init System, IP clock and multi-function I/O */
-    SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART to 115200-8n1 for print message */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     printf("\n\nCPU @ %dHz(PLL@ %dHz)\n", SystemCoreClock, PllClock);
     printf("PWM1 clock is from %s\n", (CLK->CLKSEL2 & CLK_CLKSEL2_PWM1SEL_Msk) ? "CPU" : "PLL");
@@ -231,6 +259,8 @@ int32_t main(void)
 
     while(1)
     {
+        uint32_t u32Timeout;
+
         printf("\n\nPress any key to start PWM Capture Test\n");
         getchar();
 
@@ -340,14 +370,25 @@ int32_t main(void)
         PWM1->CNTEN |= PWM_CNTEN_CNTEN2_Msk;
 
         /* Wait until PWM1 channel 2 Timer start to count */
-        while((PWM1->CNT[2]) == 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[2]) == 0) && (u32Timeout-- > 0));
+        if ((PWM1->CNT[2]) == 0)
+        {
+            printf("PWM1 channel 2 Timer start failed\n");
+            while(1);
+        }
 
         /* Enable capture input path for PWM1 channel 2 */
         PWM1->CAPINEN |= PWM_CAPINEN_CAPINEN2_Msk;
 
         /* Capture the Input Waveform Data */
         //CalPeriodTime(PWM1, 2);
-        CalPeriodTime();
+        retval = CalPeriodTime();
+        if (retval != 0)
+        {
+            printf("CalPeriodTime() failed!\n");
+            while (1);
+        }
         /*---------------------------------------------------------------------------------------------------------*/
         /* Stop PWM1 channel 0 (Recommended procedure method 1)                                                    */
         /* Set PWM Timer loaded value(Period) as 0. When PWM internal counter(CNT) reaches to 0, disable PWM Timer */
@@ -357,7 +398,13 @@ int32_t main(void)
         PWM1->PERIOD[0] = 0;
 
         /* Wait until PWM1 channel 0 Timer Stop */
-        while((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0) && (u32Timeout-- > 0));
+        if ((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0)
+        {
+            printf("PWM1 channel 0 Timer Stop failed\n");
+            while(1);
+        }
 
         /* Disable Timer for PWM1 channel 0 */
         PWM1->CNTEN &= ~PWM_CNTEN_CNTEN0_Msk;
@@ -377,7 +424,13 @@ int32_t main(void)
         PWM1->PERIOD[2] = 0;
 
         /* Wait until PWM1 channel 2 current counter reach to 0 */
-        while((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0);
+        u32Timeout = SystemCoreClock;
+        while(((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0) && (u32Timeout-- > 0));
+        if ((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0)
+        {
+            printf("PWM1 channel 2 current counter cannot reach to 0\n");
+            while(1);
+        }
 
         /* Disable Timer for PWM1 channel 2 */
         PWM1->CNTEN &= ~PWM_CNTEN_CNTEN2_Msk;

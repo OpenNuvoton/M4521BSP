@@ -22,7 +22,7 @@
 #define TEST_COUNT 64
 
 /* Function prototype declaration */
-void SYS_Init(void);
+int32_t SYS_Init(void);
 void UART0_Init(void);
 void SPI_Init(void);
 void SpiLoopTest_WithPDMA(void);
@@ -35,15 +35,23 @@ uint32_t g_au32SlaveRxBuffer[TEST_COUNT];
 
 int main(void)
 {
+    int32_t retval;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
     /* Init System, IP clock and multi-function I/O. */
-    SYS_Init();
+    retval = SYS_Init();
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     /* Init SPI */
     SPI_Init();
@@ -71,8 +79,9 @@ int main(void)
     while(1);
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32Timeout;
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
@@ -82,7 +91,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Select HXT as the clock source of HCLK */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HXT;
@@ -118,6 +130,7 @@ void SYS_Init(void)
     /* Configure SPI1 related multi-function pins. GPE[13:10] : SPI1_CLK, SPI1_MISO, SPI1_MOSI, SPI1_SS. */
     SYS->GPE_MFPH = (SYS_GPE_MFPH_PE12MFP_SPI1_SS | SYS_GPE_MFPH_PE11MFP_SPI1_MOSI | SYS_GPE_MFPH_PE10MFP_SPI1_MISO | SYS_GPE_MFPH_PE13MFP_SPI1_CLK);
 
+    return 0;
 }
 
 void UART0_Init()

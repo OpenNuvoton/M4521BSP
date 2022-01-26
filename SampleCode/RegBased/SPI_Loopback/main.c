@@ -20,7 +20,7 @@ uint32_t g_au32SourceData[TEST_COUNT];
 uint32_t g_au32DestinationData[TEST_COUNT];
 
 /* Function prototype declaration */
-void SYS_Init(void);
+int32_t SYS_Init(void);
 void UART0_Init(void);
 void SPI_Init(void);
 
@@ -30,16 +30,23 @@ void SPI_Init(void);
 int main(void)
 {
     uint32_t u32DataCount, u32TestCount, u32Err;
+    int32_t retval;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
     /* Init System, IP clock and multi-function I/O. */
-    SYS_Init();
+    retval = SYS_Init();
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART0 for printf */
     UART0_Init();
+
+    if (retval != 0)
+    {
+        printf("SYS_Init failed!\n");
+        while (1);
+    }
 
     /* Init SPI */
     SPI_Init();
@@ -83,10 +90,19 @@ int main(void)
 
         while(1)
         {
+            uint32_t u32Timeout;
+
             /* Write to TX register */
             SPI_WRITE_TX(SPI0, g_au32SourceData[u32DataCount]);
             /* Check SPI0 busy status */
-            while(SPI_IS_BUSY(SPI0));
+            u32Timeout = SystemCoreClock;
+            while((SPI_IS_BUSY(SPI0)) && (u32Timeout-- > 0));
+            if (SPI_IS_BUSY(SPI0))
+            {
+                printf("SPI0 always busy\n");
+                while(1);
+            }
+
             /* Read received data */
             g_au32DestinationData[u32DataCount] = SPI_READ_RX(SPI0);
             u32DataCount++;
@@ -116,8 +132,9 @@ int main(void)
     while(1);
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32Timeout;
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
@@ -127,7 +144,10 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32Timeout = SystemCoreClock / 10;
+    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
+    if (!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+        return -1;
 
     /* Select HXT as the clock source of HCLK */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HXT;
@@ -156,6 +176,7 @@ void SYS_Init(void)
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock and CyclesPerUs automatically. */
     SystemCoreClockUpdate();
 
+    return 0;
 }
 
 void UART0_Init(void)
@@ -172,7 +193,7 @@ void SPI_Init(void)
     /* Init SPI                                                                                                */
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set IP clock divider. SPI clock rate = f_PCLK0 / (5+1) */
-    SPI0->CLKDIV = SPI0->CLKDIV & (~SPI_CLKDIV_DIVIDER_Msk) | 5;
+    SPI0->CLKDIV = (SPI0->CLKDIV & (~SPI_CLKDIV_DIVIDER_Msk)) | 5;
     /* Configure as a master, clock idle low, 32-bit transaction, drive output on falling clock edge and latch input on rising edge. */
     SPI0->CTL = SPI_MASTER | SPI_CTL_TXNEG_Msk | SPI_CTL_SPIEN_Msk;
 
