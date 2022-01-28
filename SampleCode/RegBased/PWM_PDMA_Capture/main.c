@@ -195,7 +195,7 @@ int32_t SYS_Init(void)
     /* Set PC multi-function pins for PWM1 Channel 0 and 2 */
     SYS->GPC_MFPL = SYS_GPC_MFPL_PC6MFP_PWM1_CH0;
     SYS->GPD_MFPH = SYS_GPD_MFPH_PD14MFP_PWM1_CH2;
-    
+
     return 0;
 }
 

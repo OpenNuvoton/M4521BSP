@@ -230,7 +230,7 @@ int32_t main(void)
     SYS_UnlockReg();
 
     /* Init System, IP clock and multi-function I/O */
-        retval = SYS_Init();
+    retval = SYS_Init();
 
     /* Lock protected registers */
     SYS_LockReg();

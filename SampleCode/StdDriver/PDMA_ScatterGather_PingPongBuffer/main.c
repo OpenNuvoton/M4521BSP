@@ -130,7 +130,7 @@ void UART0_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
-     uint32_t u32Timeout;
+    uint32_t u32Timeout;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -200,7 +200,8 @@ int main(void)
             PDMA_Close();
             while(1);
         }
-        if(u32Timeout == 0){
+        if(u32Timeout == 0)
+        {
             printf("transfer timeout\n");
             while(1);
         }

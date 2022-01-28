@@ -49,8 +49,8 @@ int32_t SYS_Init(void)
     while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) && (u32Timeout-- > 0));
     while(!(CLK->STATUS & CLK_STATUS_LXTSTB_Msk) && (u32Timeout-- > 0));
     if (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk) ||
-        !(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) ||
-        !(CLK->STATUS & CLK_STATUS_LXTSTB_Msk))
+            !(CLK->STATUS & CLK_STATUS_HXTSTB_Msk) ||
+            !(CLK->STATUS & CLK_STATUS_LXTSTB_Msk))
         return -1;
 
     /* Switch STCLK source to HCLK/2 and HCLK clock source to PLL */

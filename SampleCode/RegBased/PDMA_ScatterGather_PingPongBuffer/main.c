@@ -240,7 +240,8 @@ int main(void)
             while(1);
         }
 
-        if(u32Timeout == 0){
+        if(u32Timeout == 0)
+        {
             printf("transfer timeout\n");
             while(1);
         }

@@ -150,7 +150,8 @@ int main(void)
 
     u32Timeout = SystemCoreClock;
     while(PDMA_IS_CH_BUSY(5) && (u32Timeout-- > 0));
-    if(PDMA_IS_CH_BUSY(5)){
+    if(PDMA_IS_CH_BUSY(5))
+    {
         printf("transfer timeout\n");
         while(1);
     }

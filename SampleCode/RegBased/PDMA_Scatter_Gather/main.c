@@ -207,7 +207,8 @@ int main(void)
     /* Waiting for transfer done */
     u32Timeout = SystemCoreClock;
     while( (PDMA->TRGSTS & (1 << 5)) && (u32Timeout-- > 0));
-    if((PDMA->TRGSTS & (1 << 5))){
+    if((PDMA->TRGSTS & (1 << 5)))
+    {
         printf("transfer timeout\n");
         while(1);
     }

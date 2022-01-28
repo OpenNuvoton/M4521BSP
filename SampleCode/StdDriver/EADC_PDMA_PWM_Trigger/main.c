@@ -225,7 +225,7 @@ int32_t EADC_FunctionTest()
             while((g_u32IsTestOver == 0) && (u32Timeout-- > 0));
             if(g_u32IsTestOver == 0)
                 return -1;
-            
+
             g_u32IsTestOver = 0;
 
             /* Disable PWM0 channel 0 counter */

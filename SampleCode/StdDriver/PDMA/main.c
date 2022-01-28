@@ -160,7 +160,8 @@ int main(void)
 
     u32Timeout = SystemCoreClock;
     while( (u32IsTestOver == 0) && (u32Timeout-- > 0));
-    if((u32IsTestOver==0)){
+    if((u32IsTestOver==0))
+    {
         printf("transfer timeout\n");
         while(1);
     }

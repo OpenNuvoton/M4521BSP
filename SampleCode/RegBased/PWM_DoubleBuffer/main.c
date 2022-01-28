@@ -136,7 +136,7 @@ int32_t SYS_Init(void)
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC2MFP_PWM0_CH2;
     SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC3MFP_Msk));
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC3MFP_PWM0_CH3;
-    
+
     return 0;
 }
 
@@ -160,7 +160,7 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
-        int32_t retval;
+    int32_t retval;
 
     /* Init System, IP clock and multi-function I/O
        In the end of SYS_Init() will issue SYS_LockReg()

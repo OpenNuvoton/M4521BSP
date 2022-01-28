@@ -140,7 +140,8 @@ int main(void)
 
         u32TimeOutCount = SystemCoreClock;
         while(!(RTC->SPRCTL & RTC_SPRCTL_SPRRWRDY_Msk))
-        {   // wait spare register stable
+        {
+            // wait spare register stable
             if(u32TimeOutCount == 0) break;
             u32TimeOutCount--;
         }

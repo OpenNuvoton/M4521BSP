@@ -158,7 +158,7 @@ int32_t EADC_FunctionTest()
     while((g_u32AdcCmp0IntFlag == 0) && (g_u32AdcCmp1IntFlag == 0) && (u32Timeout-- > 0));
     if((g_u32AdcCmp0IntFlag == 0) && (g_u32AdcCmp1IntFlag == 0) )
         return -1;
-    
+
 
     /* Disable the sample module 0 interrupt */
     EADC_DISABLE_SAMPLE_MODULE_INT(EADC, 0, 0x1);
