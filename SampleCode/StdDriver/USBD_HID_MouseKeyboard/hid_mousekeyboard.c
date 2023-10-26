@@ -8,6 +8,7 @@
  ******************************************************************************/
 
 /*!<Includes */
+#include <stdio.h>
 #include <string.h>
 #include "M4521.h"
 #include "hid_mousekeyboard.h"
@@ -19,6 +20,8 @@ uint8_t move_len, mouse_mode=1;
 uint8_t volatile g_u8EP2Ready = 0;
 uint8_t volatile g_u8EP3Ready = 0;
 
+uint8_t Led_Status[8];
+uint32_t LED_SATUS = 0;
 
 void USBD_IRQHandler(void)
 {
@@ -250,7 +253,7 @@ void HID_ClassRequest(void)
             {
                 /* Request Type = Output */
                 USBD_SET_DATA1(EP1);
-                USBD_SET_PAYLOAD_LEN(EP1, buf[6]);
+                USBD_PrepareCtrlOut(Led_Status, buf[6]);
 
                 /* Status stage */
                 USBD_PrepareCtrlIn(0, 0);
@@ -347,6 +350,38 @@ void HID_UpdateKbData(void)
             buf[2] = 0x04; /* Key 'a' */
             USBD_SET_PAYLOAD_LEN(EP3, 8);
         }
+    }
+
+    if(Led_Status[0] != LED_SATUS)
+    {
+        if((Led_Status[0] & HID_LED_ALL) != (LED_SATUS & HID_LED_ALL))
+        {
+            if(Led_Status[0] & HID_LED_NumLock)
+                printf("NmLK  ON, ");
+            else
+                printf("NmLK OFF, ");
+
+            if(Led_Status[0] & HID_LED_CapsLock)
+                printf("CapsLock  ON, ");
+            else
+                printf("CapsLock OFF, ");
+
+            if(Led_Status[0] & HID_LED_ScrollLock)
+                printf("ScrollLock  ON, ");
+            else
+                printf("ScrollLock OFF, ");
+
+            if(Led_Status[0] & HID_LED_Compose)
+                printf("Compose  ON, ");
+            else
+                printf("Compose OFF, ");
+
+            if(Led_Status[0] & HID_LED_Kana)
+                printf("Kana  ON\n");
+            else
+                printf("Kana OFF\n");
+        }
+        LED_SATUS = Led_Status[0];
     }
 }
 /*** (C) COPYRIGHT 2022 Nuvoton Technology Corp. ***/
