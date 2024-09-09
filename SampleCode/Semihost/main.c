@@ -12,6 +12,8 @@
 
 #if defined (__GNUC__) && !defined(__ARMCC_VERSION) && defined(OS_USE_SEMIHOSTING)
 extern void initialise_monitor_handles(void);
+
+void ProcessHardFault() {}
 #endif
 
 /*---------------------------------------------------------------------------------------------------------*/

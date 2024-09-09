@@ -40,11 +40,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/Library/Device/Nuvoton/M4521/Source</locationURI>
 		</link>
 		<link>
-			<name>Library/Library</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/Library/StdDriver/src</locationURI>
-		</link>
-		<link>
 			<name>User/FMC_Base.ld</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/FMC_Base.ld</locationURI>
@@ -59,6 +54,11 @@
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/retarget_tiny.c</locationURI>
 		</link>
+		<link>
+			<name>User/startup_M4521_tiny.S</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/startup_M4521_tiny.S</locationURI>
+		</link>
 	</linkedResources>
 	<filteredResources>
 		<filter>
@@ -71,21 +71,12 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1534833069192</id>
-			<name>Library/Library</name>
-			<type>5</type>
+			<id>1725329303073</id>
+			<name>CMSIS/CMSIS/GCC</name>
+			<type>6</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-fmc.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1534833069208</id>
-			<name>Library/Library</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-sys.c</arguments>
+				<arguments>1.0-name-matches-false-false-startup_M4521.S</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

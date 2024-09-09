@@ -59,6 +59,11 @@
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/retarget_tiny.c</locationURI>
 		</link>
+		<link>
+			<name>User/startup_M4521_tiny.S</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/startup_M4521_tiny.S</locationURI>
+		</link>
 	</linkedResources>
 	<filteredResources>
 		<filter>
@@ -86,6 +91,15 @@
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-sys.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1725352504859</id>
+			<name>CMSIS/CMSIS/GCC</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-startup_M4521.S</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
