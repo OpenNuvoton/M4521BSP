@@ -19,7 +19,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../m4.jpg"/></td>
   <td id="projectalign">
-   <div id="projectname">M4521_BSP<span id="projectnumber">&#160;V3.01.001</span>
+   <div id="projectname">M4521_BSP<span id="projectnumber">&#160;V3.02.000</span>
    </div>
    <div id="projectbrief">The Board Support Package for M4521</div>
   </td>
@@ -324,7 +324,7 @@ $(function() {
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span> </div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno"><a class="line" href="../../dc/db4/group___s_p_i___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#gaa50388ee5b14b42bceda88c2389fc335">  371</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../dc/db4/group___s_p_i___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#gaa50388ee5b14b42bceda88c2389fc335">SPI_SetFIFO</a>(<a class="code hl_struct" href="../../d5/d95/struct_s_p_i___t.html">SPI_T</a> *spi, uint32_t u32TxThreshold, uint32_t u32RxThreshold)</div>
 <div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>{</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    spi-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> = (spi-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> &amp; ~(<a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a1fdbf9079622f45bb78d9a203a3ec8dc">SPI_FIFOCTL_TXTH_Msk</a> | <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#aa827b682ed66e7e43c70cc43ef421263">SPI_FIFOCTL_RXTH_Msk</a>) |</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    spi-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> = ((spi-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> &amp; ~(<a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a1fdbf9079622f45bb78d9a203a3ec8dc">SPI_FIFOCTL_TXTH_Msk</a> | <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#aa827b682ed66e7e43c70cc43ef421263">SPI_FIFOCTL_RXTH_Msk</a>)) |</div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>                    (u32TxThreshold &lt;&lt; <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a7a4822ea008620f87a41ae91cff38249">SPI_FIFOCTL_TXTH_Pos</a>) |</div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>                    (u32RxThreshold &lt;&lt; <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a1bea6ff70bcf6c4cb5e33402998b3387">SPI_FIFOCTL_RXTH_Pos</a>));</div>
 <div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>}</div>
@@ -778,7 +778,7 @@ $(function() {
 <div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span> </div>
 <div class="line"><a id="l01028" name="l01028"></a><span class="lineno"><a class="line" href="../../dc/db4/group___s_p_i___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#ga2b4661b257a16d33df06e583184b340f"> 1028</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../dc/db4/group___s_p_i___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#ga2b4661b257a16d33df06e583184b340f">I2S_SetFIFO</a>(<a class="code hl_struct" href="../../d5/d95/struct_s_p_i___t.html">SPI_T</a> *i2s, uint32_t u32TxThreshold, uint32_t u32RxThreshold)</div>
 <div class="line"><a id="l01029" name="l01029"></a><span class="lineno"> 1029</span>{</div>
-<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"> 1030</span>    i2s-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> = (i2s-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> &amp; ~(<a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a1fdbf9079622f45bb78d9a203a3ec8dc">SPI_FIFOCTL_TXTH_Msk</a> | <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#aa827b682ed66e7e43c70cc43ef421263">SPI_FIFOCTL_RXTH_Msk</a>) |</div>
+<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"> 1030</span>    i2s-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> = ((i2s-&gt;<a class="code hl_variable" href="../../d6/d93/group___peripheral_decl.html#ga42bd75cdeab853186f7fecead2e77f97">FIFOCTL</a> &amp; ~(<a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a1fdbf9079622f45bb78d9a203a3ec8dc">SPI_FIFOCTL_TXTH_Msk</a> | <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#aa827b682ed66e7e43c70cc43ef421263">SPI_FIFOCTL_RXTH_Msk</a>)) |</div>
 <div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span>                    (u32TxThreshold &lt;&lt; <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a7a4822ea008620f87a41ae91cff38249">SPI_FIFOCTL_TXTH_Pos</a>) |</div>
 <div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>                    (u32RxThreshold &lt;&lt; <a class="code hl_define" href="../../d0/dd3/_m4521_8h.html#a1bea6ff70bcf6c4cb5e33402998b3387">SPI_FIFOCTL_RXTH_Pos</a>));</div>
 <div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span>}</div>
@@ -925,7 +925,7 @@ $(function() {
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 19 2024 14:12:26 for M4521_BSP by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.3
+Generated on Thu Oct 17 2024 09:13:38 for M4521_BSP by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.3
 </small></address>
 </body>
 </html>

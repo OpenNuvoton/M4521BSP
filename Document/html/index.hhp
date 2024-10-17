@@ -197,7 +197,6 @@ da/d02/unusual__devs_8h.html
 da/d02/unusual__devs_8h_source.html
 da/d03/group___n_u_c451___s_c_l_i_b___e_x_p_o_r_t_e_d___s_t_r_u_c_t_s.html
 da/d15/group___u_s_b___host___driver.html
-da/d3e/struct_____f_i_l_e.html
 da/d85/group___i2_c___driver.html
 da/d87/spi_8h.html
 da/d87/spi_8h_source.html
@@ -458,16 +457,12 @@ d2/d71/wdt_8h__dep__incl.png
 d2/db6/fmc_8h__incl.png
 d2/dd0/usbd_8c__incl.png
 d3/d3d/retarget_8c_a1647e9479b4be5731d79c81af76826c5_cgraph.png
-d3/d3d/retarget_8c_a1ccda7aff5ae7079bcb291df6400b600_cgraph.png
 d3/d3d/retarget_8c_a32d2b4f69d4059618d9c49a894523cfa_cgraph.png
 d3/d3d/retarget_8c_a6810d0fa478aa8204d73d9fc5d026c64_icgraph.png
 d3/d3d/retarget_8c_ab11a990e4f8863a1e7736e3c1d430092_cgraph.png
-d3/d3d/retarget_8c_abbc61afd0759008b5add4b522f092e2b_cgraph.png
-d3/d3d/retarget_8c_abbc61afd0759008b5add4b522f092e2b_icgraph.png
+d3/d3d/retarget_8c_abdd7dfc5d63ba5a36e6ca72a39bfa9e5_cgraph.png
+d3/d3d/retarget_8c_abdd7dfc5d63ba5a36e6ca72a39bfa9e5_icgraph.png
 d3/d3d/retarget_8c_ad71fc5c80d56f83994f96dc83d0bbabe_icgraph.png
-d3/d3d/retarget_8c_ae00be9f559dccb846e6d2163ac110ac3_cgraph.png
-d3/d3d/retarget_8c_ae00be9f559dccb846e6d2163ac110ac3_icgraph.png
-d3/d3d/retarget_8c_afe16048dd014bcc03ce5348c37dec537_icgraph.png
 d3/d7d/group___u_s_b_h___m_a_s_s___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s_gae1a2add0b6282f60b44f707979ec9a70_cgraph.png
 d3/dde/sc_8h__dep__incl.png
 d3/df7/i2c_8h__dep__incl.png
@@ -628,6 +623,7 @@ dc/dc7/usbd_8h__dep__incl.png
 dc/dec/usbh__uac_8h__incl.png
 dc/ded/__syscalls_8c__incl.png
 dd/d10/usbh__core_8h__dep__incl.png
+dd/d26/_nu_micro_8h__dep__incl.png
 dd/d55/usbh__hid_8h__incl.png
 dd/d6c/rtc_8h__dep__incl.png
 dd/d6f/uac__driver_8c__incl.png

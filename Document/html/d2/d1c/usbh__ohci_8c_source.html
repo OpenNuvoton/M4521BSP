@@ -19,7 +19,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../m4.jpg"/></td>
   <td id="projectalign">
-   <div id="projectname">M4521_BSP<span id="projectnumber">&#160;V3.01.001</span>
+   <div id="projectname">M4521_BSP<span id="projectnumber">&#160;V3.02.000</span>
    </div>
    <div id="projectbrief">The Board Support Package for M4521</div>
   </td>
@@ -1159,7 +1159,7 @@ $(function() {
 <div class="line"><a id="l01119" name="l01119"></a><span class="lineno"> 1119</span>    info = (info &amp; 0xFF1FFFFF) | (3 &lt;&lt; 21);  <span class="comment">/* delay 3 frame */</span></div>
 <div class="line"><a id="l01120" name="l01120"></a><span class="lineno"> 1120</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l01121" name="l01121"></a><span class="lineno"> 1121</span> </div>
-<div class="line"><a id="l01122" name="l01122"></a><span class="lineno"> 1122</span>    td-&gt;hwPSW[0] = ((uint32_t)data + urb-&gt;<a class="code hl_variable" href="../../d8/d1c/group___u_s_b_h___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#gab8382bc8b8f83c03f13060a5d7dabb61">iso_frame_desc</a>[index * <a class="code hl_define" href="../../d9/d5f/usbh__config_8h.html#a59865c54b96c73b3d98408fc76cae616">ISO_FRAME_COUNT</a>].<a class="code hl_variable" href="../../d8/d1c/group___u_s_b_h___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#ga242033fe0e06fb874ce362ed437d7a0d">offset</a>) &amp; 0x0FFF | 0xE000;</div>
+<div class="line"><a id="l01122" name="l01122"></a><span class="lineno"> 1122</span>    td-&gt;hwPSW[0] = (((uint32_t)data + urb-&gt;<a class="code hl_variable" href="../../d8/d1c/group___u_s_b_h___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#gab8382bc8b8f83c03f13060a5d7dabb61">iso_frame_desc</a>[index * <a class="code hl_define" href="../../d9/d5f/usbh__config_8h.html#a59865c54b96c73b3d98408fc76cae616">ISO_FRAME_COUNT</a>].<a class="code hl_variable" href="../../d8/d1c/group___u_s_b_h___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#ga242033fe0e06fb874ce362ed437d7a0d">offset</a>) &amp; 0x0FFF) | 0xE000;</div>
 <div class="line"><a id="l01123" name="l01123"></a><span class="lineno"> 1123</span>    <span class="keywordflow">for</span>(i = 0; i &lt; <a class="code hl_define" href="../../d9/d5f/usbh__config_8h.html#a59865c54b96c73b3d98408fc76cae616">ISO_FRAME_COUNT</a> / 2; i++)</div>
 <div class="line"><a id="l01124" name="l01124"></a><span class="lineno"> 1124</span>    {</div>
 <div class="line"><a id="l01125" name="l01125"></a><span class="lineno"> 1125</span>        td-&gt;hwPSW[i] = (((uint32_t)data + urb-&gt;<a class="code hl_variable" href="../../d8/d1c/group___u_s_b_h___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#gab8382bc8b8f83c03f13060a5d7dabb61">iso_frame_desc</a>[index * <a class="code hl_define" href="../../d9/d5f/usbh__config_8h.html#a59865c54b96c73b3d98408fc76cae616">ISO_FRAME_COUNT</a> + i * 2].<a class="code hl_variable" href="../../d8/d1c/group___u_s_b_h___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#ga242033fe0e06fb874ce362ed437d7a0d">offset</a>) &amp; 0x0FFF) |</div>
@@ -2486,7 +2486,7 @@ $(function() {
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 19 2024 14:12:27 for M4521_BSP by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.3
+Generated on Thu Oct 17 2024 09:13:38 for M4521_BSP by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.3
 </small></address>
 </body>
 </html>
